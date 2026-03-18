@@ -1,0 +1,32 @@
+{% extends "Faculty/layout.html" %}
+{% block content %}
+<section class="section">
+
+    <div class="section-header">
+        <h1>My Classes</h1>
+    </div>
+
+    <div class="row">
+
+
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    {% if classes %}
+                    <ul></ul>
+                    {% for class in classes %}
+                    <h2>{{ class[1] }}</h2> <br>
+                    <h5> faculty: {{ class[6] }}</h5> 
+                    <h5> department: {{ class[7] }}</h5>
+                    {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>No classes assigned</p>
+                    {% endif %}
+                    <a href="{{ url_for('start_attendance') }}" class="btn btn-success btn-sm">Start Attendance</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

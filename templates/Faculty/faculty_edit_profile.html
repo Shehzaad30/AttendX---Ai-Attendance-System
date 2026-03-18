@@ -1,0 +1,46 @@
+{% extends "Faculty/layout.html" %}
+{% block content %}
+
+<h3>Edit Profile</h3>
+
+<div class="card shadow mt-3">
+    <div class="card-body">
+        <form action="{{ url_for('edit_faculty_profile_process', Faculty_id=faculty[0][0]) }}" method="post">
+            {% for i in faculty %}
+            <div class="mb-3">
+                <label>Name</label>
+                <input type="text" name="Faculty_name" class="form-control" value="{{ faculty[0][1] }}">
+            </div>
+
+            <div class="mb-3">
+                <label>Email</label>
+                <input type="email" name="Faculty_email" class="form-control" value="{{ faculty[0][2] }}">
+            </div>
+
+            <div class="mb-3">
+                <label>Password</label>
+                <input type="text" name="Password" class="form-control" value="{{ faculty[0][3] }}">
+            </div>
+
+            <div class="mb-3">
+                <label>Phone</label>
+                <input type="text" name="contact" class="form-control" value="{{ faculty[0][5] }}">
+            </div>
+
+            <div class="mb-3">
+                <label>Department</label>
+                <select name="Department_id" class="form-control">
+                    {% for j in departments %}
+                    <option value="{{ j[0] }}" {% if j[0]==faculty[4] %}selected{% endif %}>
+                        {{ j[1] }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endfor %}
+            <button class="btn btn-success" type="submit">Update Profile</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

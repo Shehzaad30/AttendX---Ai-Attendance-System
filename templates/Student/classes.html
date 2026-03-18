@@ -1,0 +1,42 @@
+{% extends "Student/layout.html" %}
+{% block content %}
+
+<section class="section">
+    <div class="row">
+
+        {% for j in classes %}
+
+        <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+            <div class="card shadow-lg h-100">
+
+                <div class="card-body">
+
+                    <h5 class="card-title text-primary mb-3">
+                        {{ j[1] }}
+                    </h5>
+
+                    <p><strong>Faculty Name:</strong> {{ j[2] }}</p>
+                    <p><strong>Department:</strong> {{ j[3] }}</p>
+                    <p><strong>Room No:</strong> {{ j[4] }}</p>
+                    <p><strong>Date:</strong> {{ j[5] }}</p>
+                    <p><strong>Start Time:</strong> {{ j[6] }}</p>
+                    <p><strong>End Time:</strong> {{ j[7] }}</p>
+                    <p><strong>Location:</strong> <a style="font-family:'Courier New', Courier, monospace; font-weight:550;">{{ j[8] }},{{j[9]}}</a></p>
+                    
+                    <div class="mt-3">
+                        <a href="{{ url_for('mark_attendance', class_id=j[0]) }}" class="btn btn-primary w-100">
+                            Mark Attendance
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        {% endfor %}
+
+    </div>
+</section>
+
+{% endblock %}

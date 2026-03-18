@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+    <title>Dashboard &mdash; AttendX</title>
+
+    <!-- General CSS Files -->
+    <link rel="stylesheet" href="/static/Admin/assets/modules/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="/static/Admin/assets/modules/jqvmap/dist/jqvmap.min.css">
+    <link rel="stylesheet" href="/static/Admin/assets/modules/summernote/summernote-bs4.css">
+    <link rel="stylesheet" href="/static/Admin/assets/modules/owlcarousel2/dist/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="/static/Admin/assets/modules/owlcarousel2/dist/assets/owl.theme.default.min.css">
+
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="/static/Admin/assets/css/style.min.css">
+    <link rel="stylesheet" href="/static/Admin/assets/css/components.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+</head>
+
+<body class="layout-4">
+
+
+    <div id="app">
+        <div class="main-wrapper main-wrapper-1">
+            <div class="navbar-bg"></div>
+
+            <!-- Start app top navbar -->
+            <nav class="navbar navbar-expand-lg main-navbar">
+                <form class="form-inline mr-auto">
+                    
+                </form>
+
+                <ul class="navbar-nav navbar-right">
+
+                    <li class="dropdown">
+                        <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+
+                            <img alt="image"
+                                src="https://ui-avatars.com/api/?name={{session['admin_name']}}&background=6c5ce7&color=fff"
+                                class="rounded-circle mr-1">
+                            {% if session['admin_name'] %}
+                            <div class="d-sm-none d-lg-inline-block">Hi, {{ session['admin_name'] }}</div>
+                            {% else %}
+                            <div class="d-sm-none d-lg-inline-block">Hi, Admin</div>
+                            {% endif %}
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a href="#" class="dropdown-item has-icon">
+                                <i class="far fa-user"></i> Profile
+                            </a>
+                            <a href="{{ url_for('logout') }}" class="dropdown-item has-icon text-danger">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Start main left sidebar menu -->
+            <div class="main-sidebar sidebar-style-3">
+                <aside id="sidebar-wrapper">
+                    <div class="sidebar-brand">
+                        <a href="{{url_for('analytics')}}">
+                            <i class="fas fa-layer-group"></i> AttendX
+                        </a>
+                    </div>
+
+                    <div class="sidebar-brand sidebar-brand-sm">
+                        AX
+                    </div>
+                    <div class="sidebar-brand sidebar-brand-sm">
+                        <a href="index-2.html">AX</a>
+                    </div>
+                    <ul class="sidebar-menu">
+                        <li class="menu-header"></li>
+                        <li class="dropdown-active">
+                            <a href="{{url_for('analytics')}}" class="nav-link"><i
+                                    class="fas fa-home"></i><span>Dashboard</span></a>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-users"></i> <span>Student
+                                    Management</span></a>
+                            <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="{{url_for('add_user')}}">Add Student</a></li>
+                                <li><a class="nav-link" href="{{url_for('view_user')}}">View Student</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-database"></i> <span>Manage
+                                    Department</span></a>
+                            <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="{{url_for('add_department')}}">Add Department</a></li>
+                                <li><a class="nav-link" href="{{url_for('view_department')}}">View Department</a></li>
+                            </ul>
+                        <li class="dropdown">
+                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-user-tie"></i> <span>Manage
+                                    Faculty</span></a>
+                            <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="{{url_for('add_faculty')}}">Add Faculty</a></li>
+                                <li><a class="nav-link" href="{{url_for('view_faculty')}}">View Faculty</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-graduation-cap"></i> <span>Class
+                                    Management</span></a>
+                            <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="{{url_for('add_class')}}">Add Class</a></li>
+                                <li><a class="nav-link" href="{{url_for('view_class')}}">View Class</a></li>
+                            </ul>
+
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-file-alt"></i>
+                                <span>Reports</span></a>
+                            <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="{{url_for('report')}}">Generate Reports</a></li>
+                            </ul>
+                        <li class="dropdown">
+                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-cog"></i> <span>System
+                                    Settings</span></a>
+                            <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="{{url_for('attendance')}}">Attendance Rules</a></li>
+                                <li><a class="nav-link" href="{{url_for('settings')}}">Allowed Time Window</a></li>
+                                <li><a class="nav-link" href="{{url_for('gps_range')}}">Gps Range</a></li>
+                                <li><a class="nav-link" href="{{url_for('camera_setting')}}">Camera Settings</a></li>
+                            </ul>
+                        <li class="dropdown">
+                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-shield-alt"></i> <span>Security &
+                                    maintenance</span></a>
+                            <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="{{url_for('backup_database')}}">Backup Database</a></li>
+                            </ul>
+                        <li>
+                            <a href="{{url_for('logout')}}" class="nav-link"><i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span></a>
+                        </li>
+            </div>
+            </aside>
+        </div>
+
+
+        {% block content %} {% endblock %}
+        <!-- Start app Footer part -->
+        <footer class="main-footer">
+            <div class="footer-left">
+                &copy; 2024 <div class="bullet"></div> <a href="">AttendX</a>
+        </footer>
+    </div>
+    </div>
+
+
+
+
+    <!-- General JS Scripts -->
+    <script src="/static/Admin/assets/bundles/lib.vendor.bundle.js"></script>
+    <script src="/static/Admin/js/CodiePie.js"></script>
+
+    <!-- JS Libraies -->
+    <script src="/static/Admin/assets/modules/jquery.sparkline.min.js"></script>
+    <script src="/static/Admin/assets/modules/chart.min.js"></script>
+    <script src="/static/Admin/assets/modules/owlcarousel2/dist/owl.carousel.min.js"></script>
+    <script src="/static/Admin/assets/modules/summernote/summernote-bs4.js"></script>
+    <script src="/static/Admin/assets/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
+
+    <!-- Page Specific JS File -->
+    <script src="/static/Admin/js/page/index.js"></script>
+
+    <!-- Template JS File -->
+    <script src="/static/Admin/js/scripts.js"></script>
+    <script src="/static/Admin/js/custom.js"></script>
+</body>
+
+</html>

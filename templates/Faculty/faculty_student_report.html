@@ -1,0 +1,34 @@
+{% extends "Faculty/layout.html" %}
+{% block content %}
+
+<section class="section">
+    <div class="section-header">
+        <h1>Attendance Reports</h1>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form class="row">
+                <div class="col-md-4">
+                    <label>Class</label>
+                    <select class="form-control">
+                        <option>TY CSE - A</option>
+                        <option>TY CSE - B</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label>Month</label>
+                    <input type="month" class="form-control">
+                </div>
+
+                <div class="col-md-4 d-flex align-items-end">
+                    <button class="btn btn-primary mr-2">Generate</button>
+                    <button class="btn btn-success">Export Excel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "Admin/layout.html" %}
+{% block content %}
+<div class="main-content">
+    <section class="section">
+        <div class="section-header">
+            <h1>Backup Database</h1>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <p>Click the button below to backup the database. This will create a backup file that you can download
+                    and store safely.</p>
+                <a href="{{ url_for('backup_database') }}" class="btn btn-primary">Backup Database</a>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

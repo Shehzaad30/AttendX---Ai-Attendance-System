@@ -1,0 +1,247 @@
+{% extends "Faculty/layout.html" %}
+{% block content %}
+
+<section class="section">
+
+    <div class="section-header">
+        <h1>Faculty Dashboard</h1>
+        <div class="section-header-breadcrumb">
+            <div class="breadcrumb-item active">Dashboard</div>
+        </div>
+    </div>
+
+
+    <!-- ===================== STATISTICS ===================== -->
+
+    <div class="row">
+
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card card-statistic-2">
+                <div class="card-icon shadow-primary bg-primary">
+                    <i class="fas fa-chalkboard"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Total Classes</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ classdata or 0 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card card-statistic-2">
+                <div class="card-icon shadow-primary bg-success">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Total Students</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ total_students or 0 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card card-statistic-2">
+                <div class="card-icon shadow-primary bg-warning">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Today's Attendance</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ today_attendance or 0 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card card-statistic-2">
+                <div class="card-icon shadow-primary bg-danger">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Pending Classes</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ pending_classes or 0 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ===================== NEXT CLASS ===================== -->
+
+    <div class="row mt-4">
+
+        <div class="col-lg-4">
+
+            <div class="card">
+
+                <div class="card-header">
+                    <h4>Next Class</h4>
+                </div>
+
+                <div class="card-body">
+
+                    {% if next_class %}
+
+                    <h5>{{ next_class.class_name }}</h5>
+
+                    <p>
+                        Room: {{ next_class.room_no }} <br>
+                        Time: {{ next_class.start_time }} - {{ next_class.end_time }}
+                    </p>
+
+                    <a href="{{ url_for('take_attendance') }}" class="btn btn-success btn-sm">
+                        Start Attendance
+                    </a>
+
+                    {% else %}
+
+                    <p class="text-muted">No upcoming class today</p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ===================== TODAY'S CLASSES ===================== -->
+
+        <div class="col-lg-8">
+
+            <div class="card">
+
+                <div class="card-header">
+                    <h4>Today's Classes</h4>
+                </div>
+
+                <div class="card-body p-0">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-striped mb-0">
+
+                            <thead>
+                                <tr>
+                                    <th>Class</th>
+                                    <th>Room</th>
+                                    <th>Time</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for cls in today_classes %}
+
+                                <tr>
+
+                                    <td>{{ cls.class_name }}</td>
+
+                                    <td>{{ cls.room_no }}</td>
+
+                                    <td>{{ cls.start_time }} - {{ cls.end_time }}</td>
+
+                                    <td>
+
+                                        <a href="{{ url_for('take_attendance', class_id=cls.class_id) }}"
+                                            class="btn btn-success btn-sm">
+
+                                            Take Attendance
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                                {% else %}
+
+                                <tr>
+
+                                    <td colspan="4" class="text-center text-muted">
+                                        No classes scheduled today
+                                    </td>
+
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================== QUICK ACTIONS ===================== -->
+
+    <div class="row mt-4">
+
+        <div class="col-lg-4">
+
+            <div class="card">
+
+                <div class="card-header">
+                    <h4>Quick Actions</h4>
+                </div>
+
+                <div class="card-body">
+
+                    <a href="{{ url_for('myclasses') }}" class="btn btn-primary btn-block mb-2">
+                        <i class="fas fa-chalkboard"></i> My Classes
+                    </a>
+
+                    <a href="{{ url_for('faculty_student_report') }}" class="btn btn-info btn-block mb-2">
+                        <i class="fas fa-history"></i> Attendance History
+                    </a>
+
+                    <a href="{{ url_for('faculty_student_report') }}" class="btn btn-warning btn-block mb-2">
+                        <i class="fas fa-file-alt"></i> Reports
+                    </a>
+
+                    <a href="{{ url_for('faculty_profile') }}" class="btn btn-secondary btn-block">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</section>
+
+{% endblock %}

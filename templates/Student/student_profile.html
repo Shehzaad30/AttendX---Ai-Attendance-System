@@ -1,0 +1,49 @@
+{% extends "Student/layout.html" %}
+{% block content %}
+
+<section class="section">
+    <div class="section-header">
+        <h1>Student Profile</h1>
+    </div>
+
+    <div class="card shadow-lg border-0">
+        <div class="card-body p-4">
+
+            {% for i in student %}
+            <div class="row align-items-center">
+
+                <!-- Profile Image -->
+                <div class="col-md-3 text-center">
+                    <img src="{{ i[9] }}" class="
+                    " width="160" style="object-fit: cover;">
+                </div>
+                <!-- Profile Info -->
+                <div class="col-md-6 ">
+                    <div>
+                        <p><strong>Name: </strong>{{ i[1] }}</p>
+                    </div>
+                    <div class="">
+                        <p class=""><strong>Email: </strong>{{ i[6] }}</p>
+                    </div>
+                    <div>
+                        <p><strong>Enrollment No: </strong>{{ i[3] }}</p>
+                    </div>
+                    <div>
+                        <p><strong>Contact: </strong>{{ i[8]}} </p>
+                    </div>
+                    <div>
+                        <p><strong>Semester: </strong>{{ i[5] }}th</p>
+                    </div>
+                    <a href="{{ url_for('student_edit_profile',Student_id=i[0])}}" class="btn btn-primary px-4"
+                        type="submit">
+                        Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    </div>
+
+</section>
+{% endblock %}

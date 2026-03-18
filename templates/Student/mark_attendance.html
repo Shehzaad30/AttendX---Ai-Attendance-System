@@ -1,0 +1,151 @@
+{% extends "Student/layout.html" %}
+{% block content %}
+
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+
+                <!-- Webcam -->
+
+                <div class="col-md-4">
+
+                    <h5>Webcam Capture</h5>
+
+                    <video id="webcam" autoplay style="border:1px solid purple;width:100%;border-radius:10px;"> </video>
+
+                    <button id="capture_img" class="btn btn-primary mt-3">
+                        Capture Image
+                    </button>
+
+                    <canvas id="canvas" style="display:none;"></canvas>
+
+                </div>
+
+                <!-- Location -->
+
+                <div class="col-md-4">
+
+                    <h5>Location Capture</h5>
+
+                    <button id="capture_location" class="btn btn-primary mt-3">
+                        Capture Location
+                    </button>
+
+                    <p id="location_status" style="margin-top:10px;color:green;"></p>
+
+                </div>
+
+                <!-- Preview -->
+
+                <div class="col-md-2">
+
+                    <h5>Preview</h5>
+
+                    <img id="captured-image"
+                        style="display:none;margin-top:20px;width:150px;border-radius:10px;border:1px solid #ddd;">
+
+                </div>
+
+                <!-- Submit -->
+
+                <div class="col-md-2 mt-4">
+
+                    <form method="POST" action="{{ url_for('mark_attendanceprocess',) }}">
+
+                        <input type="hidden" id="image_data" name="image_data">
+                        <input type="hidden" id="latitude" name="latitude">
+                        <input type="hidden" id="longitude" name="longitude">
+
+                        <input type="hidden" name="class_id" value="{{ class_id }}">
+
+                        <button type="submit" class="btn btn-success">
+                            Mark Attendance
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    const webcam = document.getElementById('webcam');
+    const canvas = document.getElementById('canvas');
+    const captureimgButton = document.getElementById('capture_img');
+    const previewImage = document.getElementById('captured-image');
+
+    const imageDataInput = document.getElementById('image_data');
+
+    const captureLocationBtn = document.getElementById('capture_location');
+    const latitudeInput = document.getElementById('latitude');
+    const longitudeInput = document.getElementById('longitude');
+
+    const locationStatus = document.getElementById('location_status');
+
+
+    // Start Webcam
+    navigator.mediaDevices.getUserMedia({
+        video: { width: 320, height: 240 }
+    })
+        .then(stream => {
+            webcam.srcObject = stream;
+        })
+        .catch(err => {
+            console.log(err);
+        });
+
+
+    // Capture Image
+    captureimgButton.addEventListener('click', () => {
+
+        canvas.width = 320;
+        canvas.height = 240;
+
+        const ctx = canvas.getContext("2d");
+
+        ctx.drawImage(webcam, 0, 0, 320, 240);
+
+        const imageData = canvas.toDataURL('image/jpeg', 0.5);
+
+        previewImage.src = imageData;
+        previewImage.style.display = "block";
+
+        imageDataInput.value = imageData;
+
+    });
+
+
+    // Capture Location
+    captureLocationBtn.addEventListener('click', () => {
+
+        if (navigator.geolocation) {
+
+            navigator.geolocation.getCurrentPosition(function (position) {
+
+                let lat = position.coords.latitude;
+                let lon = position.coords.longitude;
+
+                latitudeInput.value = lat;
+                longitudeInput.value = lon;
+
+                locationStatus.innerHTML = "Location Captured Successfully";
+
+            });
+
+        } else {
+
+            locationStatus.innerHTML = "Location Not Supported";
+
+        }
+
+    });
+
+</script>
+
+{% endblock %}

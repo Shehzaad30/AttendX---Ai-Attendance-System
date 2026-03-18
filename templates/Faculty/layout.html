@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+    <title>Faculty Dashboard - AttendX</title>
+
+    <!-- General CSS Files -->
+    <link rel="stylesheet" href="/static/Faculty/assets/modules/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/Faculty/assets/modules/fontawesome/css/all.min.css">
+
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="/static/Faculty/assets/modules/jqvmap/dist/jqvmap.min.css">
+    <link rel="stylesheet" href="/static/Faculty/assets/modules/summernote/summernote-bs4.css">
+    <link rel="stylesheet" href="/static/Faculty/assets/modules/owlcarousel2/dist/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="/static/Faculty/assets/modules/owlcarousel2/dist/assets/owl.theme.default.min.css">
+    <link rel="stylesheet" href="/static/Faculty/assets/modules/chocolat/dist/css/chocolat.css">
+    <link rel="stylesheet" href="/static/Faculty/assets/modules/ionicons/css/ionicons.min.css">
+    <link rel="stylesheet" href="static/Faculty/assets/modules/fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" >
+
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="/static/Faculty/assets/css/style.min.css">
+    <link rel="stylesheet" href="/static/Faculty/assets/css/components.min.css">
+
+</head>
+
+<body class="layout-4">
+    <!-- Page Loader -->
+
+    <div id="app">
+        <div class="main-wrapper main-wrapper-1">
+            <div class="navbar-bg"></div>
+
+            <!-- Start app top navbar -->
+            <nav class="navbar navbar-expand-lg main-navbar">
+                <form class="form-inline mr-auto">
+                    <div class="search-element">
+                        <input class="form-control" type="search" placeholder="Search..." aria-label="Search">
+                        <button class="btn" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            
+                <ul class="navbar-nav navbar-right">
+            
+                    <li class="dropdown dropdown-list-toggle">
+                        <a href="#" class="nav-link notification-toggle nav-link-lg">
+                            <i class="far fa-bell"></i>
+                        </a>
+                    </li>
+            
+                    <li class="dropdown">
+                        <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+            
+                            <img alt="image"
+                                src="https://ui-avatars.com/api/?name={{session['Faculty_name']}}&background=6c5ce7&color=fff"
+                                class="rounded-circle mr-1">
+                            {% if session['Faculty_name'] %}
+                            <div class="d-sm-none d-lg-inline-block">Hi, {{ session['Faculty_name'] }}</div>
+                            {% else %}
+                            <div class="d-sm-none d-lg-inline-block">Hi, Guest</div>
+                            {% endif %}
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a href="#" class="dropdown-item has-icon">
+                                <i class="far fa-user"></i> Profile
+                            </a>
+                            <a href="{{ url_for('faculty_logout') }}" class="dropdown-item has-icon text-danger">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="main-sidebar sidebar-style-3">
+                <aside id="sidebar-wrapper">
+
+                    <div class="sidebar-brand">
+                        <a href="/faculty/dashboard">AttendX</a>
+                    </div>
+                    <div class="sidebar-brand sidebar-brand-sm">
+                        <a href="/faculty/dashboard">AX</a>
+                    </div>
+
+                    <!-- MENU -->
+                    <ul class="sidebar-menu">
+
+                        <li>
+                            <a class="nav-link" href="{{ url_for('faculty_dashboard') }}">
+                                <i class="fas fa-home"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="nav-link" href="{{ url_for('myclasses') }}">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <span>My Classes</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="nav-link" href="{{ url_for('start_attendance') }}">
+                                <i class="fas fa-user-check"></i>
+                                <span>Start Attendance</span>
+                            </a>
+                        </li>
+
+
+
+                        <li>
+                            <a class="nav-link" href="{{ url_for('faculty_student_report') }}">
+                                <i class="fas fa-file-alt"></i>
+                                <span>Reports</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="nav-link" href="{{ url_for('faculty_profile') }}">
+                                <i class="fas fa-user"></i>
+                                <span>Profile</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="nav-link" href="{{ url_for('faculty_logout') }}">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </li>
+                    </ul>
+                </aside>
+            </div>
+
+            <!-- Start app main Content -->
+            <div class="main-content">
+                {% block content %}
+                {% endblock %}
+            </div>
+
+            <section class="section">
+
+
+                <!-- General JS Scripts -->
+                <script src="/static/Faculty/assets/bundles/lib.vendor.bundle.js"></script>
+                <script src="/static/Faculty/js/CodiePie.js"></script>
+
+                <!-- JS Libraies -->
+                <script src="/static/Faculty/assets/modules/jquery.sparkline.min.js"></script>
+                <script src="/static/Faculty/assets/modules/chart.min.js"></script>
+                <script src="/static/Faculty/assets/modules/owlcarousel2/dist/owl.carousel.min.js"></script>
+                <script src="/static/Faculty/assets/modules/summernote/summernote-bs4.js"></script>
+                <script src="/static/Faculty/assets/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
+
+                <!-- Page Specific JS File -->
+                <script src="/static/Faculty/js/page/index.js"></script>
+
+                <!-- Template JS File -->
+                <script src="/static/Faculty/js/scripts.js"></script>
+                <script src="/static/Faculty/js/custom.js"></script>
+</body>
+
+</html>

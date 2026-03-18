@@ -1,0 +1,137 @@
+{% extends "Admin/layout.html" %}
+{% block content %}
+
+<style>
+    body {
+        background: #f4f6f9;
+    }
+
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+</style>
+
+<div class="main-content">
+    <section class="section">
+
+        <div class="row">
+
+
+            <div class="col-lg-3 col-md-1 col-sm-10">
+                <div class="card card-statistic-2">
+                    <div class="card-icon shadow-success bg-success">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-stats">
+                        <div class="card-header">
+                            <h4>Total Students</h4>
+                        </div>
+                        <div class="card-body">
+                            {{studata}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-lg-3 col-md-1 col-sm-10">
+                <div class="card card-statistic-2">
+                    <div class="card-icon shadow-success bg-success">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Total Departments</h4>
+                        </div>
+                        <div class="card-body">
+                            {{deptdata}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-1 col-sm-10">
+                <div class="card card-statistic-2">
+                    <div class="card-icon shadow-success bg-success">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Total Faculty</h4>
+                        </div>
+                        <div class="card-body">
+                            {{facultydata}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STUDENTS PRESENT -->
+            <div class="col-lg-3 col-md-1 col-sm-10">
+                <div class="card card-statistic-2">
+
+                    <div class="card-icon shadow-warning bg-warning">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Attendance Marked</h4>
+                        </div>
+                        <div class="card-body">
+                            {{attenddata}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-deck">
+            <!-- WEEKLY ATTENDANCE TREND -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Weekly Attendance Trend</h4>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="weeklyAttendanceChart" height="160"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CLASS-WISE SUMMARY -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Class-wise Attendance</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled list-unstyled-border">
+                            <li class="media">
+                                <div class="media-body">
+                                    <div class="media-title">CSE - 6th Sem</div>
+                                    <div class="text-muted">92%</div>
+                                </div>
+                            </li>
+                            <li class="media">
+                                <div class="media-body">
+                                    <div class="media-title">CSE - 5th Sem</div>
+                                    <div class="text-muted">88%</div>
+                                </div>
+                            </li>
+                            <li class="media">
+                                <div class="media-body">
+                                    <div class="media-title">CSE - 4th Sem</div>
+                                    <div class="text-muted">81%</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+{% endblock %}

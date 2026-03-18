@@ -1,0 +1,61 @@
+{% extends "Admin/layout.html" %}
+{% block content %}
+<div class="main-content">
+    <section class="section">
+
+        <div class="section-header">
+            <h1>Edit Faculty</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12 col-md-8 col-sm-12">
+                <div class="card-student">
+                    <div class="card-body">
+
+                        <form action="{{url_for('edit_faculty_process', Faculty_id=faculty[0])}}" method="post"
+                            width="100%">
+                            <div class="form-group">
+                                <label>Faculty Name</label>
+                                <input type="text" name="Faculty_name" class="form-control"
+                                    placeholder="Enter faculty name" value="{{ faculty[1] }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Faculty Email</label>
+                                <input type="email" name="Faculty_email" class="form-control"
+                                    placeholder="Enter faculty email" value="{{faculty[2]}}">
+                            </div>
+                            <div class="form-group">
+                                <label>Faculty Password</label>
+                                <input type="password" name="Password" class="form-control"
+                                    placeholder="Enter faculty password" minlength="6" value="{{faculty[3]}}">
+                            </div>
+                            <div class="form-group">
+                                <label>Faculty Department</label>
+                                    <select class="form-control" name="Department_id" required>
+                                        {% for j in departments %}
+                                        <option value="{{j[0]}}" {% if j[0]==faculty[4] %}selected{% endif %}>
+                                            {{j[1]}}</option>
+                                        {% endfor %}
+                                    </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Faculty Contact Number</label>
+                                <input type="text" name="contact" class="form-control"
+                                    placeholder="Enter faculty phone number" required pattern="[0-9]{10}"
+                                    title="Please enter a valid 10-digit phone number" value="{{faculty[5]}}">
+                            </div>
+                            <div class="form-group">
+                                <label>Faculty Image</label>
+                                <input type="file" name="Faculty_image" class="form-control-file">
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Update Faculty
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,243 @@
+{% extends "Student/layout.html" %}
+{% block content %}
+
+<section class="section">
+
+    <div class="section-header">
+        <h1>Student Dashboard</h1>
+    </div>
+
+
+    <!-- ================= STATISTICS ================= -->
+
+    <div class="row">
+
+        <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="card card-statistic-2">
+                <div class="card-icon shadow-primary bg-primary">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Total Classes</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ total_classes or 0 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="card card-statistic-2">
+                <div class="card-icon shadow-primary bg-warning">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Today's Classes</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ today_classes_count or 0 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="card card-statistic-2">
+                <div class="card-icon shadow-primary bg-success">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Attendance %</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ attendance_percentage or 0 }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ================= GRAPH SPACE + NEXT CLASS ================= -->
+
+    <div class="row mt-4">
+
+        <!-- Blank Graph Space -->
+        <div class="col-lg-8">
+
+            <div class="card">
+
+                <div class="card-header">
+                    <h4>Attendance Overview</h4>
+                </div>
+
+                <div class="card-body text-center">
+
+                    <div style="height:250px; display:flex; align-items:center; justify-content:center; color:#aaa;">
+
+                        <p>Attendance analytics will appear here</p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Next Class -->
+        <div class="col-lg-4">
+
+            <div class="card">
+
+                <div class="card-header">
+                    <h4>Next Class</h4>
+                </div>
+
+                <div class="card-body">
+
+                    {% if next_class %}
+
+                    <h5>{{ next_class.class_name }}</h5>
+
+                    <p>
+
+                        Room: {{ next_class.room_no }} <br>
+
+                        Time: {{ next_class.start_time }} - {{ next_class.end_time }}
+
+                    </p>
+
+                    {% else %}
+
+                    <p>No upcoming class today.</p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= TODAY'S SCHEDULE ================= -->
+
+    <div class="row mt-4">
+
+        <div class="col-lg-8">
+
+            <div class="card">
+
+                <div class="card-header">
+                    <h4>Today's Schedule</h4>
+                </div>
+
+                <div class="card-body p-0">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-striped mb-0">
+
+                            <thead>
+
+                                <tr>
+                                    <th>Class</th>
+                                    <th>Room</th>
+                                    <th>Time</th>
+                                    <th>Action</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {% for cls in today_classes %}
+
+                                <tr>
+
+                                    <td>{{ cls.class_name }}</td>
+
+                                    <td>{{ cls.room_no }}</td>
+
+                                    <td>{{ cls.start_time }} - {{ cls.end_time }}</td>
+
+                                    <td>
+
+                                        <a href="{{ url_for('mark_attendance', class_id=cls.class_id) }}"
+                                            class="btn btn-success btn-sm">
+                                            Mark Attendance
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                                {% else %}
+
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        No classes scheduled for today.
+                                    </td>
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= QUICK ACTIONS ================= -->
+
+        <div class="col-lg-4">
+
+            <div class="card">
+
+                <div class="card-header">
+                    <h4>Quick Actions</h4>
+                </div>
+
+                <div class="card-body">
+
+                    <a href="{{ url_for('classes') }}" class="btn btn-primary btn-block mb-2">
+                        <i class="fas fa-book"></i> View Classes
+                    </a>                    
+
+                    <a href="{{ url_for('student_attendance_report') }}" class="btn btn-info btn-block mb-2">
+                        <i class="fas fa-history"></i> Attendance History
+                    </a>
+
+                    <a href="{{ url_for('student_profile') }}" class="btn btn-secondary btn-block">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

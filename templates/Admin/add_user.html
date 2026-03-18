@@ -1,0 +1,196 @@
+{% extends "Admin/layout.html" %}
+{% block content %}
+
+<div class="main-content">
+    <section class="section">
+        <div class="section-header">
+            <h1>Add Student</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
+                <div class="breadcrumb-item"><a href="#">Forms</a></div>
+                <div class="breadcrumb-item">Add Student</div>
+            </div>
+        </div>
+
+        <div class="section-body">
+        
+<form id="studentform" enctype="multipart/form-data">
+
+            <div class="row">
+                <div class="col-4 col-md-4 col-lg-4">
+                    <h5>Webcam Capture</h5>
+                    <video id="webcam" autoplay style="border:1px solid rebeccapurple; width: 100%;"></video>
+<button type="button" id="capture" class="btn btn-primary mt-2">Capture Image</button>                    <canvas id="canvas" style="display:none;"></canvas>
+                </div>
+                <div class="col-md-2">
+                    <img src="" alt="" id="captured-image" style="display:none; margin-top:50px; height:100px;">
+                </div>
+                <div class="col-6 col-md-6 col-lg-6">
+                    <div class="card-student">
+    <div class="card-body">
+                                <div class="form-group">
+                                    <label>Name</label>
+                                    <input type="text" class="form-control" name="student_name" id="student_name"
+                                        placeholder="Enter Student Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Division</label>
+                                    <select class="form-control" name="Division" id="Division" required="">
+                                        <option>Select Division</option>
+                                        <option>Division A</option>
+                                        <option>Division B</option>
+                                        <option>Division C</option>
+                                        <option>Division D</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Enrollment Number</label>
+                                    <input type="text" class="form-control" name="Enrollment_no" id="Enrollment_no"
+                                        placeholder="Enter Enrollment Number" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Department of Student</label>
+
+                                    <select class="form-control" name="Department_id" id="Department_id" required="">
+                                        <option>Select Department</option>
+                                        {% for department in departments %}
+                                        <option value="{{ department[0] }}">{{ department[1] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Semester of the Student</label>
+                                    <input type="text" class="form-control" name="Semester" id="Semester"
+                                        placeholder="Enter Semester" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" class="form-control" name="Email" id="Email"
+                                        placeholder="Enter Email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Password</label>
+                                    <input type="password" class="form-control" name="password" id="password" required
+                                        placeholder="Enter Password" minlength="6">
+                                </div>
+                                <div class="form-group">
+                                    <label>Contact Number</label>
+                                    <input type="text" class="form-control" name="contact" id="contact" required
+                                        pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number" placeholder="Enter Contact No">
+                                </div>
+
+                                <div>
+                                    <input type="file" name="captured_image" id="captured_image" style="display:none;">
+                                    <button class="btn btn-primary" type="button" id="submitBtn"
+                                        class="fas fa-plus">Submit</button>
+                                </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+                                </form>
+
+    </section>
+</div>
+
+<script>
+
+    const webcam = document.getElementById('webcam');
+    const canvas = document.getElementById('canvas');
+    const captureButton = document.getElementById('capture');
+    const capturedImageInput = document.getElementById('captured_image');
+    const submitButton = document.getElementById('submitBtn');
+    const preview = document.getElementById('captured-image');
+
+    // Start Webcam
+    async function startWebcam() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            webcam.srcObject = stream;
+        } catch (err) {
+            console.log("Webcam error:", err);
+            alert("Camera access denied");
+        }
+    }
+
+    startWebcam();
+
+    // Capture Image
+    captureButton.addEventListener("click", function () {
+
+        canvas.width = webcam.videoWidth;
+        canvas.height = webcam.videoHeight;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+
+        const imageData = canvas.toDataURL("image/png");
+
+        preview.src = imageData;
+        preview.style.display = "block";
+
+        fetch(imageData)
+            .then(res => res.blob())
+            .then(blob => {
+
+                const file = new File([blob], "student.png", { type: "image/png" });
+
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+
+                capturedImageInput.files = dataTransfer.files;
+            });
+    });
+
+
+    // Submit Form
+    submitButton.addEventListener("click", function (e) {
+
+        e.preventDefault();
+
+        const form = document.getElementById("studentform");
+        const formData = new FormData(form);
+
+        if (!capturedImageInput.files.length) {
+            alert("Please capture student image");
+            return;
+        }
+
+        fetch("{{ url_for('studentprocess') }}", {
+            method: "POST",
+            body: formData
+        })
+            .then(res => res.json())
+            .then(data => {
+
+                if (data.success) {
+                    Toastify({
+                        text: "Student Added Successfully",
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "green"
+                    }).showToast();
+                    window.location.href = "{{url_for('view_user')}}";
+                } else {
+                    Toastify({
+                        text: data.message,
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "red"
+                    }).showToast();
+
+                }
+
+            })
+            .catch(error => console.log(error));
+
+    });
+
+</script>
+
+{% endblock %}

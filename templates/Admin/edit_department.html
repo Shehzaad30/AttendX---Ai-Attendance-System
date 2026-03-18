@@ -1,0 +1,46 @@
+{% extends "Admin/layout.html" %}
+{% block content %}
+<div class="main-content">
+    <section class="section">
+
+        <div class="section-header">
+            <h1>Edit Department</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12 col-md-8 col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+
+                        <form action="{{url_for('edit_department', Department_id=department[0])}}" method="post" width="100%">
+                            <div class="form-group">
+                                <label>Department Name</label>
+                                <input type="text" name="Department_name" class="form-control"
+                                    placeholder="Enter department name" value="{{department[1]}}">
+                            </div>
+                            <div class="form-group">
+                                <label>Department Code</label>
+                                <input type="text" name="Department_code" class="form-control"
+                                    placeholder="Enter department code" value="{{department[2]}}">
+                            </div>
+                            <div class="form-group">
+                                <label>Department Head</label>
+                                <input type="text" name="HOD_name" class="form-control"
+                                    placeholder="Enter department head name" value="{{department[3]}}">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Update Department
+                            </button>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</div>
+</body>
+{% endblock %}

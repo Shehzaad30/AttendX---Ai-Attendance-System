@@ -1,0 +1,27 @@
+{% extends "Faculty/layout.html" %}
+{% block content %}
+
+<section class="section">
+    <div class="section-header">
+        <h1>Faculty Profile</h1>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="faculty-info" style="display: flex; align-items: center;">
+                <div>
+                    <img src="" alt="Faculty Profile Picture" class="rounded-circle" width="150" height="auto">
+                    <h4>{{ session['Faculty_name'] }}</h4>
+                    <p><strong>Email:</strong> {{ session['Faculty_email'] }}</p>
+                    <p><strong>Contact:</strong> {{ session.contact }}</p>
+                    <p><strong>Department:</strong> {{ session['Department_name'] }}</p>
+                </div>
+
+            
+        </div>
+        <a href="{{ url_for('faculty_edit_profile') }}" class="btn btn-primary">Edit Profile</a>
+    </div>
+
+</section>
+
+{% endblock %}

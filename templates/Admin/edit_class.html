@@ -1,0 +1,89 @@
+{% extends "Admin/layout.html" %}
+{% block content %}
+
+
+<div class="main-content">
+    <section class="section">
+
+        <div class="section-header">
+            <h1>Edit Class</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12 col-md-8 col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+
+                        <form action="{{url_for('edit_class_process', class_id=class_data[0])}}" method="post">
+                            <div class="form-group">
+                                <label>Class Name</label>
+                                <input type="text" name="class_name" class="form-control" placeholder="Enter class name"
+                                    value="{{ class_data[1] }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Faculty Incharge</label>
+                                <select class=" form-control" name="Faculty_id" required>
+                                    <option>Select Faculty Incharge</option>
+                                    {% for faculty in faculty_members %}
+                                    <option value="{{ faculty[0] }}" {% if faculty[0] == class_data[2] %}selected{% endif %}>{{ faculty[1] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Semester</label>
+                                <select class="form-control" name="semester" required>
+                                    {% for i in range(1, 9) %}
+                                    <option value="{{i}}" {% if i == class_data[5] %}selected{% endif %}>{{i}}th Semester</option>
+                                    {% endfor %}
+                                    <option value="5">5th Semester</option>
+                                    <option value="6">6th Semester</option>
+                                    <option value="7">7th Semester</option>
+                                    <option value="8">8th Semester</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Department</label>
+                                <select class="form-control" name="Department_id" required>
+                                    {% for j in departments %}
+                                <option value="{{j[0]}}" {% if j[0] == class_data[3] %}selected{% endif %}>{{j[1]}}</option>
+                                {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Room No.</label>
+                                <input type="text" name="room_no" class="form-control" placeholder="Enter room no."
+                                    value="{{ class_data[5] }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Latitude</label>
+                                <input type="number" step="any" name="latitude" class="form-control"
+                                    value="{{ class_data[6] }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Longitude</label>
+                                <input type="number" step="any" name="longitude" class="form-control" 
+                                    value="{{ class_data[7] }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>date</label>
+                                <input type="date" name="date" class="form-control" value="{{ class_data[9] }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Start Time</label>
+                                <input type="time" name="start_time" class="form-control" value="{{ class_data[8] }}">
+                            </div>
+                            <div class="form-group">
+                                <label>End Time</label>
+                                <input type="time" name="end_time" class="form-control" value="{{ class_data[10] }}">
+                            </div>
+                            <div class="button-group">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
