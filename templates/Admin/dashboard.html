@@ -2,136 +2,309 @@
 {% block content %}
 
 <style>
-    body {
-        background: #f4f6f9;
+    :root {
+        --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7e22ce 100%);
+        --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        --info-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        --card-bg: #ffffff;
+        --card-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
     }
 
-    .card {
+    .main-content {
+        padding-top: 2rem;
+        background-color: #f8fafc;
+        min-height: 100vh;
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-header h1 {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 1.75rem;
+        color: var(--text-dark);
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
+
+    .dashboard-header p {
+        color: var(--text-muted);
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .stat-card-premium {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        height: 100%;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card-premium:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.15);
+    }
+
+    .stat-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: white;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 8px 16px -4px rgba(0,0,0,0.2);
+    }
+
+    .icon-indigo { background: var(--primary-gradient); }
+    .icon-green { background: var(--success-gradient); }
+    .icon-blue { background: var(--info-gradient); }
+    .icon-orange { background: var(--warning-gradient); }
+
+    .stat-details h3 {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-details .stat-number {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        margin: 0;
+        line-height: 1;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .stat-card-premium::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 120px;
+        height: 120px;
+        background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+        opacity: 0.5;
+        border-radius: 50%;
+        transform: translate(30%, -30%);
+    }
+
+    .card-modern {
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        background: var(--card-bg);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .card-modern .card-header {
+        background: transparent;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 1.25rem 1.5rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: var(--text-dark);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-modern .card-body {
+        padding: 1.5rem;
+    }
+
+    .list-group-custom .list-group-item {
+        border: none;
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.5rem;
         border-radius: 12px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        background: #f8fafc;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.2s;
+        font-weight: 500;
+        color: var(--text-dark);
+    }
+
+    .list-group-custom .list-group-item:hover {
+        background: #f1f5f9;
+    }
+
+    .badge-soft-primary {
+        background-color: rgba(79, 70, 229, 0.1);
+        color: #4f46e5;
+        font-weight: 600;
+        padding: 0.35em 0.8em;
+        border-radius: 6px;
+    }
+
+    /* Decorative background element for the page */
+    .dashboard-bg-shape {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 300px;
+        background: linear-gradient(180deg, rgba(79, 70, 229, 0.03) 0%, rgba(248, 250, 252, 0) 100%);
+        z-index: 0;
+        pointer-events: none;
+    }
+    
+    .section {
+        position: relative;
+        z-index: 1;
     }
 </style>
 
 <div class="main-content">
+    <div class="dashboard-bg-shape"></div>
     <section class="section">
+        
+        <div class="dashboard-header">
+            <div>
+                <h1>Admin Overview</h1>
+                <p>Welcome back, here's what's happening with AttendX today.</p>
+            </div>
+            <div class="header-actions">
+                <!-- Date display badge -->
+                <span class="badge badge-soft-primary" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                    <i class="fas fa-calendar-alt mr-2"></i> <span id="currentDateDisplay">Today</span>
+                </span>
+            </div>
+        </div>
 
         <div class="row">
-
-
-            <div class="col-lg-3 col-md-1 col-sm-10">
-                <div class="card card-statistic-2">
-                    <div class="card-icon shadow-success bg-success">
+            <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+                <div class="stat-card-premium">
+                    <div class="stat-icon-wrapper icon-indigo">
                         <i class="fas fa-users"></i>
                     </div>
-                    <div class="card-stats">
-                        <div class="card-header">
-                            <h4>Total Students</h4>
-                        </div>
-                        <div class="card-body">
-                            {{studata}}
-                        </div>
+                    <div class="stat-details">
+                        <h3>Total Students</h3>
+                        <div class="stat-number">{{ studata }}</div>
                     </div>
                 </div>
             </div>
 
-
-            <div class="col-lg-3 col-md-1 col-sm-10">
-                <div class="card card-statistic-2">
-                    <div class="card-icon shadow-success bg-success">
-                        <i class="fas fa-database"></i>
+            <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+                <div class="stat-card-premium">
+                    <div class="stat-icon-wrapper icon-green">
+                        <i class="fas fa-building"></i>
                     </div>
-                    <div class="card-wrap">
-                        <div class="card-header">
-                            <h4>Total Departments</h4>
-                        </div>
-                        <div class="card-body">
-                            {{deptdata}}
-                        </div>
+                    <div class="stat-details">
+                        <h3>Departments</h3>
+                        <div class="stat-number">{{ deptdata }}</div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-1 col-sm-10">
-                <div class="card card-statistic-2">
-                    <div class="card-icon shadow-success bg-success">
+            <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+                <div class="stat-card-premium">
+                    <div class="stat-icon-wrapper icon-blue">
                         <i class="fas fa-chalkboard-teacher"></i>
                     </div>
-                    <div class="card-wrap">
-                        <div class="card-header">
-                            <h4>Total Faculty</h4>
-                        </div>
-                        <div class="card-body">
-                            {{facultydata}}
-                        </div>
+                    <div class="stat-details">
+                        <h3>Faculty Members</h3>
+                        <div class="stat-number">{{ facultydata }}</div>
                     </div>
                 </div>
             </div>
 
-            <!-- STUDENTS PRESENT -->
-            <div class="col-lg-3 col-md-1 col-sm-10">
-                <div class="card card-statistic-2">
-
-                    <div class="card-icon shadow-warning bg-warning">
-                        <i class="fas fa-user-check"></i>
+            <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+                <div class="stat-card-premium">
+                    <div class="stat-icon-wrapper icon-orange">
+                        <i class="fas fa-check-circle"></i>
                     </div>
-                    <div class="card-wrap">
-                        <div class="card-header">
-                            <h4>Attendance Marked</h4>
-                        </div>
-                        <div class="card-body">
-                            {{attenddata}}
-                        </div>
+                    <div class="stat-details">
+                        <h3>Attendance Marked</h3>
+                        <div class="stat-number">{{ attenddata }}</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row row-deck">
-            <!-- WEEKLY ATTENDANCE TREND -->
-            <div class="col-lg-4">
-                <div class="card">
+        <div class="row mt-2">
+            <div class="col-lg-8 mb-4">
+                <div class="card-modern h-100">
                     <div class="card-header">
-                        <h4>Weekly Attendance Trend</h4>
+                        <span><i class="fas fa-chart-line mr-2 text-primary"></i> Weekly Attendance Trend</span>
                     </div>
                     <div class="card-body">
-                        <canvas id="weeklyAttendanceChart" height="160"></canvas>
+                        <div style="height: 300px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1; position: relative;">
+                            
+                            <canvas id="weeklyAttendanceChart" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 10;"></canvas>
+                            
+                            <!-- Placeholder if chart is empty/loading -->
+                            <div class="text-center text-muted" id="chartPlaceholder">
+                                <i class="fas fa-chart-bar mb-2" style="font-size: 2rem; color: #cbd5e1;"></i>
+                                <p class="mb-0">Chart data will appear here</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- CLASS-WISE SUMMARY -->
-            <div class="col-lg-4">
-                <div class="card">
+            <div class="col-lg-4 mb-4">
+                <div class="card-modern h-100">
                     <div class="card-header">
-                        <h4>Class-wise Attendance</h4>
+                        <span><i class="fas fa-list-ul mr-2 text-primary"></i> Class-wise Attendance</span>
                     </div>
-                    <div class="card-body">
-                        <ul class="list-unstyled list-unstyled-border">
-                            <li class="media">
-                                <div class="media-body">
-                                    <div class="media-title">CSE - 6th Sem</div>
-                                    <div class="text-muted">92%</div>
+                    <div class="card-body p-3">
+                        <ul class="list-group list-group-custom">
+                            {% for i in classes %}
+                            <li class="list-group-item">
+                                <div>
+                                    <i class="fas fa-chalkboard text-muted mr-2"></i> {{ i[2] }}
                                 </div>
+                                <span class="badge badge-soft-primary badge-pill">Active</span>
                             </li>
-                            <li class="media">
-                                <div class="media-body">
-                                    <div class="media-title">CSE - 5th Sem</div>
-                                    <div class="text-muted">88%</div>
-                                </div>
+                            {% else %}
+                            <li class="list-group-item text-muted justify-content-center">
+                                No classes available today
                             </li>
-                            <li class="media">
-                                <div class="media-body">
-                                    <div class="media-title">CSE - 4th Sem</div>
-                                    <div class="text-muted">81%</div>
-                                </div>
-                            </li>
+                            {% endfor %}
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
+
     </section>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDateDisplay').textContent = new Date().toLocaleDateString('en-US', options);
+        
+        // Hide placeholder if canvas gets populated (mocking that logic for now)
+        const canvas = document.getElementById('weeklyAttendanceChart');
+        const ctx = canvas.getContext('2d');
+        // If app.py passes chart data later, initialize Chart.js here.
+    });
+</script>
 
 {% endblock %}

@@ -1,0 +1,57 @@
+{% extends "Admin/layout.html" %}
+{% block content %}
+<style>
+    body {
+        font-family: Arial;
+        padding: 20px;
+    }
+
+    h2 {
+        text-align: center;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th,
+    td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #6c5ce7;
+        color: white;
+    }
+</style>
+</head>
+
+<body>
+
+    <h2>Student Attendance Report</h2>
+
+    <p><b>Name:</b> {{ data[0][0] }}</p>
+    <p><b>Enrollment:</b> {{ data[0][1] }}</p>
+    <p><b>Department:</b> {{ data[0][2] }}</p>
+    <p><b>Semester:</b> {{ data[0][3] }}</p>
+
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Status</th>
+        </tr>
+
+        {% for row in data %}
+        <tr>
+            <td>{{ row[4] }}</td>
+            <td>{{ row[5] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</body>
+{% endblock %}

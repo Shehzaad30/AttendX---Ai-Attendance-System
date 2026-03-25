@@ -25,7 +25,6 @@ $(function() {
     }, 100);
 });
 
-// Basic confirm box
 $('[data-confirm]').each(function() {
     var me = $(this),
         me_data = me.data('confirm');

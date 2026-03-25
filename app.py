@@ -5,19 +5,20 @@ import os
 import math
 import uuid
 import face_recognition
+from fpdf import FPDF
 import base64
+from flask import render_template_string, make_response
 import numpy as np
 import cv2
 from datetime import datetime
-
+import qrcode
+import pdfkit
 
 
 import pymysql
-
 app = Flask(__name__)
 
-
-app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024   # 20 MB limit
+app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  
 app.secret_key = "attendx_secret_key"
 conn=pymysql.connect(host='localhost', user='root', password='', db='db_atten')
 UPLOAD_FOLDER = 'static/student_img_upload/'
@@ -26,8 +27,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def alogin_process():
     admin_email = request.form.get('admin_email')
     admin_pass = request.form.get('admin_pass')
-    cursor = conn.cursor() # Establish a cursor to interact with the database
-    cursor.execute("SELECT * FROM admin_login WHERE admin_email=%s AND admin_pass=%s", (admin_email, admin_pass)) # Execute the SQL query to check if there is a matching record in the admin_login table with the provided email and password
+    cursor = conn.cursor() 
+    cursor.execute("SELECT * FROM admin_login WHERE admin_email=%s AND admin_pass=%s", (admin_email, admin_pass))
     admin = cursor.fetchone()
     if admin:
         session['admin_id'] = admin[0]
@@ -66,13 +67,13 @@ def add_department():
 
 @app.route("/insert_department", methods=["POST"])
 def insert_department():
-    department_name = request.form['Department_name'] # Retrieve the department name from the form data submitted by the user
-    department_code = request.form['Department_code'] # Retrieve the department code from the form data submitted by the user
+    department_name = request.form['Department_name'] 
+    department_code = request.form['Department_code'] 
     hod_name = request.form['HOD_name']
-    cursor = conn.cursor() # Establish a cursor to interact with the database
-    cursor.execute("INSERT INTO department_data (Department_name, Department_code, HOD_name) VALUES (%s, %s, %s)", (department_name, department_code, hod_name)) # Execute the SQL query to insert a new department record into the database
-    conn.commit() # Commit the transaction to save changes to the database
-    cursor.close() # Close the cursor after the operation is complete
+    cursor = conn.cursor() 
+    cursor.execute("INSERT INTO department_data (Department_name, Department_code, HOD_name) VALUES (%s, %s, %s)", (department_name, department_code, hod_name))
+    conn.commit() 
+    cursor.close() 
     return redirect(url_for('view_department'))
 
 @app.route("/view_department")
@@ -137,6 +138,8 @@ def add_user():
         return redirect(url_for('login'))
     
     cursor = conn.cursor()
+
+
     query = "SELECT *FROM department_data"
     cursor.execute(query)
     departments = cursor.fetchall()
@@ -164,7 +167,6 @@ def studentprocess():
 
         filename = None
 
-        # Handle image upload
         if 'captured_image' in request.files:
 
             file = request.files['captured_image']
@@ -183,10 +185,28 @@ def studentprocess():
 
                 filepath = os.path.join(UPLOAD_FOLDER, filename)
 
-                # Ensure folder exists
+                
                 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
                 file.save(filepath)
+
+                # --- NEW FACE VALIDATION LOGIC ---
+                try:
+                    loaded_img = face_recognition.load_image_file(filepath)
+                    encodings = face_recognition.face_encodings(loaded_img)
+
+                    if len(encodings) == 0:
+                        os.remove(filepath) # Clean up invalid image
+                        return jsonify({"success": False, "message": "No face detected in the webcam capture! Please try again."})
+                    
+                    if len(encodings) > 1:
+                        os.remove(filepath)
+                        return jsonify({"success": False, "message": "Multiple faces detected! Please ensure only the student is in the frame."})
+                        
+                except Exception as eval_e:
+                    print("Face validation error:", eval_e)
+                    return jsonify({"success": False, "message": "Could not validate face image."})
+                # ---------------------------------
 
         cursor = conn.cursor()
 
@@ -196,6 +216,7 @@ def studentprocess():
         Semester, Email, password, contact, img_of_student)
         VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
         """
+        
 
         values = (
             Student_name,
@@ -241,7 +262,7 @@ def view_user():
 def delete_user(Student_id):
     cursor = conn.cursor()
     query = "DELETE FROM student_data WHERE Student_id=%s"
-    val = (Student_id,) # Create a tuple with a single element (Student_id) to ensure it is passed correctly to the execute function
+    val = (Student_id,) 
     cursor.execute(query, val)
     conn.commit()
     cursor.close()
@@ -480,16 +501,77 @@ def edit_class_process(class_id):
     cursor.close()
     return redirect(url_for('view_class'))
 
+@app.route("/export_pdf/<int:Student_id>")
+def export_pdf(Student_id):
+    cursor = conn.cursor()
+
+    query = """
+    SELECT 
+    s.Student_name,
+    s.Enrollment_no,
+    d.Department_name,
+    s.Semester,
+    a.date,
+    a.status
+    FROM attendance a
+    JOIN student_data s ON a.Student_id = s.Student_id
+    JOIN department_data d ON s.Department_id = d.Department_id
+    WHERE a.Student_id = %s
+    """
+
+    cursor.execute(query, (Student_id,))
+    data = cursor.fetchall()
+    cursor.close()
+
+    rendered = render_template("Admin/attendance_pdf.html", data=data)
+
+    pdf = pdfkit.from_string(rendered, False, configuration=config)
+
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=attendance.pdf'
+
+    return response
+
 @app.route("/report")
 def report():
     if 'admin_id' not in session:
         return redirect(url_for('login'))
     cursor = conn.cursor()
-    query = "SELECT * FROM student_data join department_data on student_data.Department_id=department_data.Department_id"
+
+    query = "SELECT a.Student_id,Student_name,Enrollment_no,Semester,b.Department_name FROM student_data as a,department_data as b WHERE a.Department_id = b.Department_id;"
+    
+    
     cursor.execute(query)
     student = cursor.fetchall()
-    
+    conn.commit()
+    cursor.close()
     return render_template("Admin/report.html", student=student)
+
+@app.route("/viewattendance/<int:Student_id>")
+def view_attendance(Student_id):
+    cursor = conn.cursor()
+
+    query = """
+    SELECT 
+    s.Student_name,
+    s.Enrollment_no,
+    d.Department_name,
+    s.Semester,
+    a.date,
+    a.status
+    FROM attendance a
+    JOIN student_data s ON a.Student_id = s.Student_id
+    JOIN department_data d ON s.Department_id = d.Department_id
+    WHERE a.Student_id = %s
+    """
+
+    cursor.execute(query, (Student_id,))
+    data = cursor.fetchall()
+
+    cursor.close()
+
+    return render_template("Admin/view_attendance.html", data=data)
 
 @app.route("/attendance_rule")
 def attendance():
@@ -557,15 +639,12 @@ def faculty_login_process():
         flash("Invalid Email or Password")
         return redirect(url_for("faculty_login"))
     
-    
-
 @app.route("/faculty_login")
 def faculty_login():
     return render_template("Faculty/faculty_login.html")
 
 @app.route("/faculty_dashboard")
 def faculty_dashboard():
-
     if 'faculty_id' not in session:
         return redirect(url_for('faculty_login'))
 
@@ -574,21 +653,18 @@ def faculty_dashboard():
 
     cursor = conn.cursor(pymysql.cursors.DictCursor)
 
-    # Total classes of this faculty
     cursor.execute(
         "SELECT COUNT(*) AS total FROM class_data WHERE Faculty_id=%s",
         (faculty_id,)
     )
     classdata = cursor.fetchone()['total']
 
-    # Total students in this department
     cursor.execute(
         "SELECT COUNT(*) AS total FROM student_data WHERE Department_id=%s",
         (department_id,)
     )
     total_students = cursor.fetchone()['total']
 
-    # Today's classes for this faculty
     cursor.execute("""
         SELECT *
         FROM class_data
@@ -597,10 +673,8 @@ def faculty_dashboard():
     """, (faculty_id,))
     today_classes = cursor.fetchall()
 
-    # Count today's classes
     today_classes_count = len(today_classes)
 
-    # Today's attendance count
     cursor.execute("""
         SELECT COUNT(*) AS total
         FROM attendance
@@ -608,12 +682,10 @@ def faculty_dashboard():
     """)
     today_attendance = cursor.fetchone()['total']
 
-    # Pending classes today
     pending_classes = today_classes_count - today_attendance
     if pending_classes < 0:
         pending_classes = 0
 
-    # Next class
     cursor.execute("""
         SELECT *
         FROM class_data
@@ -659,7 +731,7 @@ def myclasses():
     return render_template("Faculty/myclasses.html", classes=classes)
 
 @app.route("/start_attendance")
-def start_attendance():
+def show_attendance():
 
     if 'faculty_id' not in session:
         return redirect(url_for('faculty_login'))
@@ -748,6 +820,7 @@ def student_login_process():
 
     cursor.execute(query, (Enrollment_no, password))
     student = cursor.fetchone()
+    conn.commit()
     cursor.close()
 
     if student:
@@ -969,51 +1042,50 @@ def mark_attendanceprocess():
 
     image_data = request.form['image_data']
     class_id = int(class_id)
-    student_lat = request.form['latitude']
-    student_lon = request.form['longitude']
-    print("Received class_id:", class_id)
+    # student_lat = request.form['latitude']
+    # student_lon = request.form['longitude']
+    # print("Received class_id:", class_id)
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    print("Class ID:", class_id)
+    # print("Class ID:", class_id)
 
-    cursor.execute("""
-    SELECT latitude, longitude
-    FROM class_data
-    WHERE class_id=%s
-    """,(class_id,))
+    # cursor.execute("""
+    # SELECT latitude, longitude
+    # FROM class_data
+    # WHERE class_id=%s
+    # """,(class_id,))
 
-    class_location = cursor.fetchone()
-    print("Class location result:", class_location)
+    # class_location = cursor.fetchone()
+    # print("Class location result:", class_location)
 
-    if not class_location:
-        return "Class location not found"
+    # if not class_location:
+    #     return "Class location not found"
 
-    class_lat = class_location['latitude']
-    class_lon = class_location['longitude']
-
-
-    distance = calculate_distance(student_lat, student_lon, class_lat, class_lon)
-    print(request.form)
-    if distance > 50:
-        return "You are not in classroom location"
+    # class_lat = class_location['latitude']
+    # class_lon = class_location['longitude']
 
 
+    # distance = calculate_distance(student_lat, student_lon, class_lat, class_lon)
+    # print(request.form)
+    # if distance > 300:
+    #     return "You are not in classroom location"
 
     image_data = image_data.split(",")[1]
     image_bytes = base64.b64decode(image_data)
     np_arr = np.frombuffer(image_bytes, np.uint8)
     frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
-    # Convert to RGB
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     unknown_encodings = face_recognition.face_encodings(rgb_frame)
 
     if len(unknown_encodings) == 0:
-        return "No face detected"
+        flash("No face detected in the image. Please try again.", "danger")
+        return redirect(url_for('mark_attendance', class_id=class_id))
 
     unknown_encoding = unknown_encodings[0]
     if len(unknown_encodings) > 1:
-        return jsonify({"status": "error", "message": "Multiple faces detected"})
+        flash("Multiple faces detected! Please ensure only you are in the frame.", "danger")
+        return redirect(url_for('mark_attendance', class_id=class_id))
 
     cursor.execute(
         "SELECT Student_id, img_of_student FROM student_data WHERE Student_id=%s",
@@ -1023,26 +1095,30 @@ def mark_attendanceprocess():
     student = cursor.fetchone()
 
     if not student:
-        return "Student not found"
+        flash("Student record not found in database.", "danger")
+        return redirect(url_for('student_dashboard'))
 
     img_filename = student['img_of_student']
     img_path = os.path.join("static/student_img_upload", img_filename)
 
     if not os.path.exists(img_path):
-        return "Student image not found"
+        flash("Your registration image is missing. Please contact admin.", "danger")
+        return redirect(url_for('student_dashboard'))
 
     known_image = face_recognition.load_image_file(img_path)
     known_encodings = face_recognition.face_encodings(known_image)
 
     if len(known_encodings) == 0:
-        return "No face found in stored image"
+        flash("No face was found in your stored registration image.", "danger")
+        return redirect(url_for('student_dashboard'))
 
     known_encoding = known_encodings[0]
 
 
     distance = face_recognition.face_distance([known_encoding], unknown_encoding)
 
-    if distance[0] < 0.5:
+    # Relaxed tolerance from 0.5 to 0.55 to reduce false rejections due to lighting
+    if distance[0] < 0.55:
 
         today = datetime.now().date()
 
@@ -1055,21 +1131,20 @@ def mark_attendanceprocess():
         already = cursor.fetchone()
 
         if already:
-            return "Attendance already marked"
+            flash("Attendance has already been marked for this class today.", "warning")
+            return redirect(url_for('student_dashboard'))
 
         cursor.execute("""
         INSERT INTO attendance (Student_id, class_id, date, status)
         VALUES (%s, %s, %s, %s)
         """, (student['Student_id'], class_id, today, "Present"))
-
         conn.commit()
 
-        return "Attendance Marked Successfully"
-
-    return jsonify({
-        "status": "error",
-        "message": "Face Not Matched"
-    })
+        flash("Attendance Marked Successfully!", "success")
+        return redirect(url_for('student_dashboard'))
+    
+    flash("Face does not match the registered user. Attendance denied.", "danger")
+    return redirect(url_for('mark_attendance', class_id=class_id))
 
 @app.route("/student_logout")
 def student_logout():

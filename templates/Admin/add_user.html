@@ -13,21 +13,22 @@
         </div>
 
         <div class="section-body">
-        
-<form id="studentform" enctype="multipart/form-data">
 
-            <div class="row">
-                <div class="col-4 col-md-4 col-lg-4">
-                    <h5>Webcam Capture</h5>
-                    <video id="webcam" autoplay style="border:1px solid rebeccapurple; width: 100%;"></video>
-<button type="button" id="capture" class="btn btn-primary mt-2">Capture Image</button>                    <canvas id="canvas" style="display:none;"></canvas>
-                </div>
-                <div class="col-md-2">
-                    <img src="" alt="" id="captured-image" style="display:none; margin-top:50px; height:100px;">
-                </div>
-                <div class="col-6 col-md-6 col-lg-6">
-                    <div class="card-student">
-    <div class="card-body">
+            <form id="studentform" enctype="multipart/form-data">
+
+                <div class="row">
+                    <div class="col-4 col-md-4 col-lg-4">
+                        <h5>Webcam Capture</h5>
+                        <video id="webcam" autoplay style="border:1px solid rebeccapurple; width: 100%;"></video>
+                        <button type="button" id="capture" class="btn btn-primary mt-2">Capture Image</button> <canvas
+                            id="canvas" style="display:none;"></canvas>
+                    </div>
+                    <div class="col-md-2">
+                        <img src="" alt="" id="captured-image" style="display:none; margin-top:50px; height:100px;">
+                    </div>
+                    <div class="col-6 col-md-6 col-lg-6">
+                        <div class="card-student">
+                            <div class="card-body">
                                 <div class="form-group">
                                     <label>Name</label>
                                     <input type="text" class="form-control" name="student_name" id="student_name"
@@ -77,7 +78,8 @@
                                 <div class="form-group">
                                     <label>Contact Number</label>
                                     <input type="text" class="form-control" name="contact" id="contact" required
-                                        pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number" placeholder="Enter Contact No">
+                                        pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number"
+                                        placeholder="Enter Contact No">
                                 </div>
 
                                 <div>
@@ -85,13 +87,13 @@
                                     <button class="btn btn-primary" type="button" id="submitBtn"
                                         class="fas fa-plus">Submit</button>
                                 </div>
+                            </div>
+
+                        </div>
+
                     </div>
-
                 </div>
-
-            </div>
-        </div>
-                                </form>
+            </form>
 
     </section>
 </div>

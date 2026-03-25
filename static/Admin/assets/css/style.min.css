@@ -2564,7 +2564,7 @@ h6 .badge {
     .nav-collapse .navbar-nav .nav-item:focus>a,
     .nav-collapse .navbar-nav .nav-item.active>a {
         background-color: #563d7c;
-        color: #fff
+        color: #000000
     }
 
     .navbar {

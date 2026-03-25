@@ -7,8 +7,115 @@
     <title>Dashboard &mdash; AttendX</title>
 
     <!-- General CSS Files -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/Admin/assets/modules/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        body, .main-sidebar .sidebar-menu li a {
+            font-family: 'Inter', sans-serif !important;
+        }
+        .main-sidebar .sidebar-menu li a {
+            font-weight: 500;
+        }
+        .navbar-bg {
+            height: 115px;
+            background: linear-gradient(135deg, #4f46e5, #7e22ce) !important;
+        }
+        .main-sidebar .sidebar-brand a {
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: #4f46e5;
+            letter-spacing: -0.5px;
+        }
+        .main-navbar .nav-link {
+            color: #1e293b !important;
+            font-weight: 600;
+        }
+        .main-sidebar .sidebar-menu li.active a {
+            color: #4f46e5 !important;
+        }
+        .main-sidebar .sidebar-menu li.active a::before {
+            background-color: #4f46e5 !important;
+        }
+        .main-footer {
+            border-top: 1px solid #e2e8f0;
+            background: #fff;
+        }
+
+        /* Global UI Overrides for Premium SaaS Look */
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            background: #ffffff;
+            margin-bottom: 30px;
+        }
+        .card .card-header, .card .card-body {
+            padding: 1.5rem;
+        }
+        .form-control {
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e1;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+            border-color: #4f46e5;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #7e22ce) !important;
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        .table {
+            color: #1e293b;
+        }
+        .table thead th {
+            border-top: none;
+            border-bottom: 2px solid #f1f5f9;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            padding: 1rem;
+        }
+        .table tbody td {
+            vertical-align: middle;
+            padding: 1rem;
+            border-color: #f1f5f9;
+        }
+        .section-header h1 {
+            color: #1e293b;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+    </style>
 
     <!-- CSS Libraries -->
     <link rel="stylesheet" href="/static/Admin/assets/modules/jqvmap/dist/jqvmap.min.css">
@@ -19,6 +126,7 @@
     <!-- Template CSS -->
     <link rel="stylesheet" href="/static/Admin/assets/css/style.min.css">
     <link rel="stylesheet" href="/static/Admin/assets/css/components.min.css">
+    <link rel="stylesheet" href="/static/full-window-ui.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
@@ -27,12 +135,10 @@
 
 <body class="layout-4">
 
-
     <div id="app">
         <div class="main-wrapper main-wrapper-1">
             <div class="navbar-bg"></div>
 
-            <!-- Start app top navbar -->
             <nav class="navbar navbar-expand-lg main-navbar">
                 <form class="form-inline mr-auto">
                     
@@ -64,25 +170,18 @@
                 </ul>
             </nav>
 
-            <!-- Start main left sidebar menu -->
             <div class="main-sidebar sidebar-style-3">
                 <aside id="sidebar-wrapper">
                     <div class="sidebar-brand">
-                        <a href="{{url_for('analytics')}}">
+                        <a>
                             <i class="fas fa-layer-group"></i> AttendX
                         </a>
                     </div>
 
-                    <div class="sidebar-brand sidebar-brand-sm">
-                        AX
-                    </div>
-                    <div class="sidebar-brand sidebar-brand-sm">
-                        <a href="index-2.html">AX</a>
-                    </div>
                     <ul class="sidebar-menu">
-                        <li class="menu-header"></li>
-                        <li class="dropdown-active">
-                            <a href="{{url_for('analytics')}}" class="nav-link"><i
+                        <li class="menu-header">Overview</li>
+                        <li class="active">
+                            <a href="{{url_for('dashboard')}}" class="nav-link"><i
                                     class="fas fa-home"></i><span>Dashboard</span></a>
                         </li>
                         <li class="dropdown">
@@ -94,35 +193,31 @@
                             </ul>
                         </li>
                         <li class="dropdown">
-                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-database"></i> <span>Manage
-                                    Department</span></a>
+                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-database"></i> <span>Manage Department</span></a>
                             <ul class="dropdown-menu">
                                 <li><a class="nav-link" href="{{url_for('add_department')}}">Add Department</a></li>
                                 <li><a class="nav-link" href="{{url_for('view_department')}}">View Department</a></li>
                             </ul>
+                        </li>
                         <li class="dropdown">
-                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-user-tie"></i> <span>Manage
-                                    Faculty</span></a>
+                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-user-tie"></i> <span>Manage Faculty</span></a>
                             <ul class="dropdown-menu">
                                 <li><a class="nav-link" href="{{url_for('add_faculty')}}">Add Faculty</a></li>
                                 <li><a class="nav-link" href="{{url_for('view_faculty')}}">View Faculty</a></li>
                             </ul>
                         </li>
                         <li class="dropdown">
-                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-graduation-cap"></i> <span>Class
-                                    Management</span></a>
+                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-graduation-cap"></i> <span>Class Management</span></a>
                             <ul class="dropdown-menu">
                                 <li><a class="nav-link" href="{{url_for('add_class')}}">Add Class</a></li>
                                 <li><a class="nav-link" href="{{url_for('view_class')}}">View Class</a></li>
                             </ul>
 
                         </li>
-                        <li class="dropdown">
-                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-file-alt"></i>
+                        <li>
+                            <a href="{{url_for('report')}}" class="nav-link"><i class="fas fa-file-alt"></i>
                                 <span>Reports</span></a>
-                            <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{url_for('report')}}">Generate Reports</a></li>
-                            </ul>
+                        </li>
                         <li class="dropdown">
                             <a href="#" class="nav-link has-dropdown"><i class="fas fa-cog"></i> <span>System
                                     Settings</span></a>
@@ -132,26 +227,32 @@
                                 <li><a class="nav-link" href="{{url_for('gps_range')}}">Gps Range</a></li>
                                 <li><a class="nav-link" href="{{url_for('camera_setting')}}">Camera Settings</a></li>
                             </ul>
+                        </li>
                         <li class="dropdown">
                             <a href="#" class="nav-link has-dropdown"><i class="fas fa-shield-alt"></i> <span>Security &
                                     maintenance</span></a>
                             <ul class="dropdown-menu">
                                 <li><a class="nav-link" href="{{url_for('backup_database')}}">Backup Database</a></li>
                             </ul>
+                        </li>
                         <li>
                             <a href="{{url_for('logout')}}" class="nav-link"><i class="fas fa-sign-out-alt"></i>
                                 <span>Logout</span></a>
                         </li>
+                    </ul>
+                </aside>
             </div>
-            </aside>
-        </div>
 
 
         {% block content %} {% endblock %}
         <!-- Start app Footer part -->
         <footer class="main-footer">
             <div class="footer-left">
-                &copy; 2024 <div class="bullet"></div> <a href="">AttendX</a>
+                &copy; AttendX. All rights reserved.
+            </div>
+            <div class="footer-right">
+                Built for smart attendance
+            </div>
         </footer>
     </div>
     </div>

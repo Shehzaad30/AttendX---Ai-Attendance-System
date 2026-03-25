@@ -7,7 +7,114 @@
     <title>Student Dashboard - AttendX</title>
 
     <!-- General CSS Files -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/Student/assets/modules/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        body, .main-sidebar .sidebar-menu li a {
+            font-family: 'Inter', sans-serif !important;
+        }
+        .main-sidebar .sidebar-menu li a {
+            font-weight: 500;
+        }
+        .navbar-bg {
+            height: 115px;
+            background: linear-gradient(135deg, #0f766e, #14b8a6) !important;
+        }
+        .main-sidebar .sidebar-brand a {
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: #0f766e;
+            letter-spacing: -0.5px;
+        }
+        .main-navbar .nav-link {
+            color: #1e293b !important;
+            font-weight: 600;
+        }
+        .main-sidebar .sidebar-menu li.active a {
+            color: #0f766e !important;
+        }
+        .main-sidebar .sidebar-menu li.active a::before {
+            background-color: #0f766e !important;
+        }
+        .main-footer {
+            border-top: 1px solid #e2e8f0;
+            background: #fff;
+        }
+
+        /* Global UI Overrides for Premium SaaS Look */
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            background: #ffffff;
+            margin-bottom: 30px;
+        }
+        .card .card-header, .card .card-body {
+            padding: 1.5rem;
+        }
+        .form-control {
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e1;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15);
+            border-color: #0d9488;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #0d9488, #0f766e) !important;
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(13, 148, 136, 0.4);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        .table {
+            color: #1e293b;
+        }
+        .table thead th {
+            border-top: none;
+            border-bottom: 2px solid #f1f5f9;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            padding: 1rem;
+        }
+        .table tbody td {
+            vertical-align: middle;
+            padding: 1rem;
+            border-color: #f1f5f9;
+        }
+        .section-header h1 {
+            color: #1e293b;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+    </style>
 
 
     <!-- CSS Libraries -->
@@ -23,6 +130,9 @@
     <!-- Template CSS -->
     <link rel="stylesheet" href="/static/Student/assets/css/style.min.css">
     <link rel="stylesheet" href="/static/Student/assets/css/components.min.css">
+    <link rel="stylesheet" href="/static/full-window-ui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
 
 <body class="layout-4">
@@ -31,13 +141,9 @@
         <div class="main-wrapper main-wrapper-1">
             <div class="navbar-bg"></div>
 
-            <!-- Start app top navbar -->
             <nav class="navbar navbar-expand-lg main-navbar">
                 <form class="form-inline mr-auto">
                     
-                </form>
-
-
                 </form>
                 <ul class="navbar-nav navbar-right">
                     <li class="dropdown">
@@ -74,7 +180,6 @@
                         <a href="/student/dashboard">AX</a>
                     </div>
 
-                    <!-- MENU -->
                     <ul class="sidebar-menu">
 
                         <li>
@@ -90,10 +195,6 @@
                                 <span>Classes</span>
                             </a>
                         </li>
-
-                        
-                        
-                        
 
                         <li>
                             <a class="nav-link" href="{{ url_for('student_attendance_report') }}">
@@ -145,6 +246,8 @@
                 <!-- Template JS File -->
                 <script src="/static/student/js/scripts.js"></script>
                 <script src="/static/student/js/custom.js"></script>
+
+
 </body>
 
 </html>
