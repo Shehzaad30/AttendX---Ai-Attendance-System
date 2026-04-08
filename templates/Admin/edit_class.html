@@ -1,89 +1,217 @@
 {% extends "Admin/layout.html" %}
 {% block content %}
 
+<style>
+    .elite-form-card {
+        background: #f9fafb;
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow-premium);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .elite-card-header {
+        padding: 20px 25px;
+        background: rgba(0, 0, 0, 0.02);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .elite-card-header h3 {
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin: 0;
+        color: var(--text-main);
+        letter-spacing: -0.5px;
+    }
+
+    .elite-card-body {
+        padding: 30px;
+    }
+
+    .form-group-elite label {
+        display: block;
+        font-weight: 700;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+    }
+
+    .form-control-elite {
+        width: 100%;
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 12px 18px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--text-main);
+        transition: var(--transition);
+        margin-bottom: 25px;
+    }
+
+    .form-control-elite:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        outline: none;
+    }
+
+    .save-btn-elite {
+        background: var(--primary-gradient);
+        color: #fff;
+        border: none;
+        border-radius: 14px;
+        padding: 16px;
+        width: 100%;
+        font-weight: 800;
+        font-size: 1rem;
+        letter-spacing: 0.5px;
+        transition: var(--transition);
+        box-shadow: 0 10px 25px rgba(79, 70, 229, 0.2);
+        margin-top: 10px;
+    }
+
+    .save-btn-elite:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 15px 35px rgba(99, 102, 241, 0.3);
+    }
+
+    .elite-header-box {
+        width: 50px;
+        height: 50px;
+        background: #fff;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: var(--primary);
+        box-shadow: var(--shadow-premium);
+        margin-right: 20px;
+    }
+
+    .breadcrumb-elite {
+        display: flex;
+        gap: 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .breadcrumb-elite a { color: var(--primary); text-decoration: none; }
+</style>
 
 <div class="main-content">
     <section class="section">
-
-        <div class="section-header">
-            <h1>Edit Class</h1>
+        <!-- Page Header -->
+        <div class="mb-5">
+            <div class="breadcrumb-elite">
+                <a href="{{url_for('dashboard')}}">DASHBOARD</a> 
+                <span>/</span> 
+                <a href="{{url_for('view_class')}}">CLASSES</a> 
+                <span>/</span> 
+                <span class="text-main">MODIFICATION</span>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="elite-header-box">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <div>
+                    <h1 class="text-main font-weight-800 mb-0" style="font-size: 1.8rem; letter-spacing: -1px;">Modify Session</h1>
+                    <p class="text-muted mb-0 font-weight-500">Updating node parameters for <span class="text-primary font-weight-700">{{ class_data[1] }}</span></p>
+                </div>
+            </div>
         </div>
 
         <div class="row">
-            <div class="col-lg-12 col-md-8 col-sm-12">
-                <div class="card">
-                    <div class="card-body">
-
-                        <form action="{{url_for('edit_class_process', class_id=class_data[0])}}" method="post">
-                            <div class="form-group">
-                                <label>Class Name</label>
-                                <input type="text" name="class_name" class="form-control" placeholder="Enter class name"
-                                    value="{{ class_data[1] }}" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Faculty Incharge</label>
-                                <select class=" form-control" name="Faculty_id" required>
-                                    <option>Select Faculty Incharge</option>
-                                    {% for faculty in faculty_members %}
-                                    <option value="{{ faculty[0] }}" {% if faculty[0] == class_data[2] %}selected{% endif %}>{{ faculty[1] }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Semester</label>
-                                <select class="form-control" name="semester" required>
-                                    {% for i in range(1, 9) %}
-                                    <option value="{{i}}" {% if i == class_data[5] %}selected{% endif %}>{{i}}th Semester</option>
-                                    {% endfor %}
-                                    <option value="5">5th Semester</option>
-                                    <option value="6">6th Semester</option>
-                                    <option value="7">7th Semester</option>
-                                    <option value="8">8th Semester</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Department</label>
-                                <select class="form-control" name="Department_id" required>
-                                    {% for j in departments %}
-                                <option value="{{j[0]}}" {% if j[0] == class_data[3] %}selected{% endif %}>{{j[1]}}</option>
-                                {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Room No.</label>
-                                <input type="text" name="room_no" class="form-control" placeholder="Enter room no."
-                                    value="{{ class_data[5] }}" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Latitude</label>
-                                <input type="number" step="any" name="latitude" class="form-control"
-                                    value="{{ class_data[6] }}" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Longitude</label>
-                                <input type="number" step="any" name="longitude" class="form-control" 
-                                    value="{{ class_data[7] }}" required>
-                            </div>
-                            <div class="form-group">
-                                <label>date</label>
-                                <input type="date" name="date" class="form-control" value="{{ class_data[9] }}">
-                            </div>
-                            <div class="form-group">
-                                <label>Start Time</label>
-                                <input type="time" name="start_time" class="form-control" value="{{ class_data[8] }}">
-                            </div>
-                            <div class="form-group">
-                                <label>End Time</label>
-                                <input type="time" name="end_time" class="form-control" value="{{ class_data[10] }}">
-                            </div>
-                            <div class="button-group">
-                                <button type="submit" class="btn btn-primary">Submit</button>
-                            </div>
-                        </form>
+            <div class="col-lg-10 offset-lg-1">
+                <div class="elite-form-card">
+                    <div class="elite-card-header">
+                        <i class="fas fa-sliders-h text-primary"></i>
+                        <h3>Configurable Parameters</h3>
                     </div>
+                    <form action="{{url_for('edit_class_process', class_id=class_data[0])}}" method="post">
+                        <div class="elite-card-body">
+                            <div class="row">
+                                <div class="col-md-6 form-group-elite">
+                                    <label>Class Identifier</label>
+                                    <input type="text" name="class_name" class="form-control-elite" value="{{ class_data[1] }}" required>
+                                </div>
+                                <div class="col-md-6 form-group-elite">
+                                    <label>Faculty Incharge</label>
+                                    <select class="form-control-elite" name="Faculty_id" required>
+                                        {% for faculty in faculty_members %}
+                                        <option value="{{ faculty[0] }}" {% if faculty[0] == class_data[2] %}selected{% endif %}>{{ faculty[1] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 form-group-elite">
+                                    <label>Academic Term</label>
+                                    <select class="form-control-elite" name="semester" required>
+                                        {% for i in range(1, 9) %}
+                                        <option value="{{i}}" {% if i == class_data[4] %}selected{% endif %}>Semester {{i}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4 form-group-elite">
+                                    <label>Assigned Domain</label>
+                                    <select class="form-control-elite" name="Department_id" required>
+                                        {% for j in departments %}
+                                        <option value="{{j[0]}}" {% if j[0] == class_data[3] %}selected{% endif %}>{{j[1]}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4 form-group-elite">
+                                    <label>Physical Node (Room)</label>
+                                    <input type="text" name="room_no" class="form-control-elite" value="{{ class_data[5] }}" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 form-group-elite">
+                                    <label>Geo-Latitude</label>
+                                    <input type="number" step="any" name="latitude" class="form-control-elite" value="{{ class_data[6] }}" required>
+                                </div>
+                                <div class="col-md-6 form-group-elite">
+                                    <label>Geo-Longitude</label>
+                                    <input type="number" step="any" name="longitude" class="form-control-elite" value="{{ class_data[7] }}" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 form-group-elite">
+                                    <label>Session Date</label>
+                                    <input type="date" name="date" class="form-control-elite" value="{{ class_data[9] }}">
+                                </div>
+                                <div class="col-md-4 form-group-elite">
+                                    <label>Activation Time</label>
+                                    <input type="time" name="start_time" class="form-control-elite" value="{{ class_data[8] }}">
+                                </div>
+                                <div class="col-md-4 form-group-elite">
+                                    <label>Termination Time</label>
+                                    <input type="time" name="end_time" class="form-control-elite" value="{{ class_data[10] }}">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="save-btn-elite">
+                                <i class="fas fa-save mr-2"></i> LEGACY PERSISTENCE: SAVE CHANGES
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </section>
 </div>
-{% endblock %}
+{% endblock %}

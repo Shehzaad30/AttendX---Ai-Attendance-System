@@ -2,42 +2,48 @@
 {% block content %}
 <style>
     body {
-        font-family: Arial;
-        padding: 20px;
+        font-family: Arial, sans-serif;
+        padding: 30px;
     }
 
     h2 {
         text-align: center;
+        color: #6c5ce7;
+    }
+
+    .info {
+        margin-bottom: 20px;
     }
 
     table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    th,
-    td {
-        border: 1px solid #ddd;
-        padding: 10px;
-        text-align: center;
     }
 
     th {
         background-color: #6c5ce7;
         color: white;
+        padding: 10px;
+    }
+
+    td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
     }
 </style>
 </head>
 
 <body>
 
-    <h2>Student Attendance Report</h2>
+    <h2>Attendance Report</h2>
 
-    <p><b>Name:</b> {{ data[0][0] }}</p>
-    <p><b>Enrollment:</b> {{ data[0][1] }}</p>
-    <p><b>Department:</b> {{ data[0][2] }}</p>
-    <p><b>Semester:</b> {{ data[0][3] }}</p>
+    <div class="info">
+        <p><b>Name:</b> {{ data[0][0] }}</p>
+        <p><b>Enrollment:</b> {{ data[0][1] }}</p>
+        <p><b>Department:</b> {{ data[0][2] }}</p>
+        <p><b>Semester:</b> {{ data[0][3] }}</p>
+    </div>
 
     <table>
         <tr>
@@ -52,6 +58,5 @@
         </tr>
         {% endfor %}
     </table>
-
 </body>
 {% endblock %}

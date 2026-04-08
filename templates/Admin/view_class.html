@@ -1,41 +1,199 @@
 {% extends "Admin/layout.html" %}
 {% block content %}
+
+<style>
+    /* Elite Class Table Patterns */
+    .class-table-card {
+        background: #f9fafb;
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow-premium);
+        overflow: hidden;
+        margin-top: 20px;
+    }
+
+    .class-table thead th {
+        background: rgba(0, 0, 0, 0.02);
+        color: var(--text-muted);
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 18px 25px;
+        border: none;
+    }
+
+    .class-table tbody td {
+        padding: 15px 25px;
+        vertical-align: middle;
+        color: var(--text-main);
+        font-weight: 500;
+        font-size: 0.9rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    }
+
+    .class-table tbody tr:hover {
+        background: rgba(99, 102, 241, 0.02);
+    }
+
+    .class-icon-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        background: var(--primary-gradient);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+    }
+
+    .room-badge {
+        background: #f1f5f9;
+        color: var(--text-muted);
+        font-family: 'JetBrains Mono', monospace;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .action-btn-elite {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+        border: 1px solid rgba(0,0,0,0.05);
+        background: #fff;
+        color: var(--text-muted);
+    }
+
+    .btn-edit:hover { background: #10b981; color: #fff; border-color: #10b981; transform: translateY(-3px); }
+    .btn-delete:hover { background: #ef4444; color: #fff; border-color: #ef4444; transform: translateY(-3px); }
+
+    .header-icon-box {
+        width: 50px;
+        height: 50px;
+        background: #fff;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: var(--primary);
+        box-shadow: var(--shadow-premium);
+        margin-right: 20px;
+    }
+
+    .breadcrumb-elite {
+        display: flex;
+        gap: 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .breadcrumb-elite a { color: var(--primary); text-decoration: none; }
+</style>
+
 <div class="main-content">
     <section class="section">
-
-        <div class="section-header">
-            <h1>View classes</h1>
+        <!-- Page Header -->
+        <div class="mb-5">
+            <div class="breadcrumb-elite">
+                <a href="{{url_for('dashboard')}}">DASHBOARD</a> 
+                <span>/</span> 
+                <span class="text-main">ACADEMIC SCHEDULE</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="header-icon-box">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-main font-weight-800 mb-0" style="font-size: 1.8rem; letter-spacing: -1px;">Class Register</h1>
+                        <p class="text-muted mb-0 font-weight-500">Managing <span class="text-primary font-weight-700">{{ classes|length }}</span> active academic sessions</p>
+                    </div>
+                </div>
+                <a href="{{url_for('add_class')}}" class="btn btn-primary font-weight-800 px-4 py-2" style="border-radius: 12px; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);">
+                    <i class="fas fa-plus mr-2"></i>SCHEDULE CLASS
+                </a>
+            </div>
         </div>
 
-        <div class="card">
-            <div class="card-body">
-                <table class="table table-striped table-bordered">
+        <div class="class-table-card">
+            <div class="table-responsive">
+                <table class="table class-table mb-0">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Class Name</th>
-                            <th>Faculty Name</th>
-                            <th>Semester</th>
-                            <th>Department Name</th>
-                            <th>Room No.</th>
-                            <th>Actions</th>
+                            <th class="text-center">#</th>
+                            <th>Class Entity</th>
+                            <th>Incharge</th>
+                            <th>Status/Term</th>
+                            <th>Department</th>
+                            <th>Location</th>
+                            <th class="text-center">Operations</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for class in classes %}
                         <tr>
-                            <td>{{ loop.index }}</td>
-                            <td>{{ class[1] }}</td>
-                            <td>{{ class[12] }}</td>
-                            <td>{{ class[4] }}</td>
-                            <td>{{ class[19] }}</td>
-                            <td>{{ class[5] }}</td>
-                            <td><a class="btn btn-success" href="{{url_for('edit_class', class_id=class[0])}}">Edit</a> || <a class="btn btn-danger" href="{{url_for('delete_class', class_id=class[0])}}">Delete</a></td>
+                            <td class="text-center font-weight-700 text-muted" style="width: 60px;">{{ loop.index }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="class-icon-avatar mr-3">
+                                        {{ class[1][0]|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="font-weight-800 text-main">{{ class[1] }}</div>
+                                        <div class="text-muted small font-weight-600">Verification Active</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="font-weight-700 text-main" style="font-size: 0.85rem;">{{ class[12] }}</div>
+                                <div class="text-muted small font-weight-600">Primary Faculty</div>
+                            </td>
+                            <td>
+                                <span class="badge badge-soft-primary px-3 py-2" style="border-radius: 8px; font-weight: 800;">TERM: {{ class[4] }}</span>
+                            </td>
+                            <td>
+                                <div class="font-weight-700 text-main" style="font-size: 0.85rem;">{{ class[19] }}</div>
+                                <div class="text-muted small font-weight-600">Academic Unit</div>
+                            </td>
+                            <td>
+                                <span class="room-badge">ROOM {{ class[5] }}</span>
+                            </td>
+                            <td class="text-center">
+                                <a href="{{url_for('edit_class', class_id=class[0])}}" class="action-btn-elite btn-edit mr-2" data-toggle="tooltip" title="Modify Session">
+                                    <i class="fas fa-pen-nib"></i>
+                                </a>
+                                <a href="{{url_for('delete_class', class_id=class[0])}}" class="action-btn-elite btn-delete" data-toggle="tooltip" title="Purge Record">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
                         </tr>
-                    {% endfor %}
+                        {% endfor %}
+                    </tbody>
                 </table>
             </div>
         </div>
     </section>
 </div>
+
+<script>
+    // Initialize Tooltips
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>
+
 {% endblock %}

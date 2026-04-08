@@ -1,32 +1,183 @@
 {%extends "Student/layout.html"%}
 {% block content %}
+<style>
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+    }
 
-<section class="section">
-    <div class="section-header">
-        <h1>Attendance Reports</h1>
+    /* Common Button Style */
+    .btn-export {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* PDF Button */
+    .btn-pdf {
+        background: linear-gradient(135deg, #ff4b4b, #d63031);
+        color: #fff;
+    }
+
+    .btn-pdf:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(214, 48, 49, 0.4);
+    }
+
+    /* Excel Button */
+    .btn-excel {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        color: #fff;
+    }
+
+    .btn-excel:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(39, 174, 96, 0.4);
+    }
+
+    /* Click Effect */
+    .btn-export:active {
+        transform: scale(0.96);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .excel-btn {
+        gap: 6px;
+        padding: 0.4rem 0.9rem;
+        border-radius: 20px;
+    }
+
+    /* Fix icon spacing & remove weird circle */
+    .excel-btn i {
+        font-size: 14px;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Remove any unwanted pseudo elements */
+    .excel-btn::before,
+    .excel-btn::after {
+        display: none !important;
+        content: none !important;
+    }
+</style>
+<div class="section-header d-flex justify-content-between align-items-center mb-4">
+    <h1>Reports</h1>
+    <div class="search-container w-25">
+        <input type="text" class="form-control" placeholder="Search report...">
     </div>
+</div>
 
-    <div class="card">
-        <div class="card-body">
-            <form class="row">
-                <div class="col-md-4">
-                    <label>Class</label>
-                    <select class="form-control">
-                    </select>
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <div class="row align-items-end">
+                    <div class="col-md-3 mb-3 mb-md-0">
+                        <label class="form-label font-weight-bold text-muted">Report Type</label>
+                        <select class="form-control custom-select">
+                            <option>Daily</option>
+                            <option>Weekly</option>
+                            <option>Monthly</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3 mb-md-0">
+                        <label class="form-label font-weight-bold text-muted">From Date</label>
+                        <input type="date" class="form-control">
+                    </div>
+                    <div class="col-md-3 mb-3 mb-md-0">
+                        <label class="form-label font-weight-bold text-muted">To Date</label>
+                        <input type="date" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center"
+                            style="gap: 8px;">
+                            <i class="fas fa-filter"></i> Generate Report
+                        </button>
+                    </div>
                 </div>
-
-                <div class="col-md-4">
-                    <label>Month</label>
-                    <input type="month" class="form-control">
-                </div>
-
-                <div class="col-md-4 d-flex align-items-end">
-                    <button class="btn btn-primary mr-2">Generate</button>
-                    <button class="btn btn-success">Export Excel</button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
-</section>
+</div>
 
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+                <h4 class="mb-0 text-dark" style="font-size: 1.1rem; font-weight: 600;"><i
+                        class="fas fa-file-alt text-primary mr-2"></i> Attendance Report</h4>
+                <div class="d-flex" style="gap: 10px;">
+                
+                    <a href="{{ url_for('export_pdf_student', Student_id=session['Student_id']) }}" target="_blank"
+                        class="btn btn-danger btn-sm d-flex align-items-center">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </a>
+                
+                    <a href="{{ url_for('export_excel_student', Student_id=session['Student_id']) }}"
+                        class="btn btn-success btn-sm d-flex align-items-center">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </a>
+                
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0 text-center">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="border-top-0">#</th>
+                                <th class="border-top-0">Student Name</th>
+                                <th class="border-top-0">Enrollment No</th>
+                                <th class="border-top-0">Department</th>
+                                <th class="border-top-0">Semester</th>
+                                <th class="border-top-0">Date</th>
+                                <th class="border-top-0">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in data1 %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td class="font-weight-600">{{ i[0] }}</td>
+                                <td>{{ i[1] }}</td>
+                                <td><span class="badge badge-light text-secondary">{{ i[2] }}</span></td>
+                                <td>{{ i[3] }}</td>
+                                <td>{{ i[4] }}</td>
+                                <td>
+                                    {% if i[5] == 'Present' %}
+                                    <div class="badge badge-success px-3 py-2"><i class="fas fa-check-circle mr-1"></i>
+                                        Present</div>
+                                    {% else %}
+                                    <div class="badge badge-danger px-3 py-2"><i class="fas fa-times-circle mr-1"></i>
+                                        Absent</div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    <div class="empty-state">
+                                        <i class="fas fa-folder-open fa-3x mb-3 text-light"></i>
+                                        <h5>No records found</h5>
+                                        <p>Please select a date range to view your attendance.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

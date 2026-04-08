@@ -4,133 +4,381 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-    <title>Student Dashboard - AttendX</title>
+    <title>AttendX &mdash; Premium Student Portal</title>
 
     <!-- General CSS Files -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/static/Student/assets/modules/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="{{ url_for('static', filename='Student/js/location.js') }}"></script>
 
     <style>
-        body, .main-sidebar .sidebar-menu li a {
-            font-family: 'Inter', sans-serif !important;
-        }
-        .main-sidebar .sidebar-menu li a {
-            font-weight: 500;
-        }
-        .navbar-bg {
-            height: 115px;
-            background: linear-gradient(135deg, #0f766e, #14b8a6) !important;
-        }
-        .main-sidebar .sidebar-brand a {
-            font-weight: 800;
-            font-size: 1.3rem;
-            color: #0f766e;
-            letter-spacing: -0.5px;
-        }
-        .main-navbar .nav-link {
-            color: #1e293b !important;
-            font-weight: 600;
-        }
-        .main-sidebar .sidebar-menu li.active a {
-            color: #0f766e !important;
-        }
-        .main-sidebar .sidebar-menu li.active a::before {
-            background-color: #0f766e !important;
-        }
-        .main-footer {
-            border-top: 1px solid #e2e8f0;
-            background: #fff;
+        :root {
+            /* Premium SaaS Aesthetics */
+            --primary: #10b981;
+            --primary-glow: rgba(16, 185, 129, 0.4);
+
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+            --surface-glass: rgba(255, 255, 255, 0.65);
+
+            --sidebar-gradient: linear-gradient(180deg, #0f172a 0%, #064e3b 100%);
+
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+
+            --border-soft: rgba(255, 255, 255, 0.6);
+            --border-dark: rgba(0, 0, 0, 0.05);
+
+            --shadow-float: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+            --inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+
+            --radius-lg: 16px;
+            --radius-md: 12px;
+
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Global UI Overrides for Premium SaaS Look */
-        .card {
-            border-radius: 20px;
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            background: #ffffff;
-            margin-bottom: 30px;
+        body {
+            background: var(--bg-gradient) !important;
+            background-attachment: fixed !important;
+            font-family: 'Inter', sans-serif !important;
+            margin: 0 !important;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
         }
-        .card .card-header, .card .card-body {
-            padding: 1.5rem;
+
+        /* Top Navbar - Glassmorphism Floating Style */
+        .main-navbar {
+            background: rgba(255, 255, 255, 0.7) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            backdrop-filter: blur(12px) !important;
+            border-bottom: 1px solid var(--border-soft) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+            height: 65px;
+            position: sticky !important;
+            top: 0;
+            z-index: 999;
+            padding: 0 30px !important;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
         }
-        .form-control {
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
-            border: 1px solid #cbd5e1;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
+
+        .main-content-wrapper {
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            min-height: 100vh;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            position: relative;
         }
-        .form-control:focus {
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15);
-            border-color: #0d9488;
+
+        body.sidebar-collapsed .main-content-wrapper {
+            margin-left: 80px;
+            width: calc(100% - 80px);
         }
-        .btn-primary {
-            background: linear-gradient(135deg, #0d9488, #0f766e) !important;
-            border: none;
-            border-radius: 12px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
-            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
+
+        /* Sidebar - Dark Glass Gradient */
+        .main-sidebar {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 260px !important;
+            height: 100vh !important;
+            background: var(--sidebar-gradient) !important;
+            z-index: 1000 !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1) !important;
+            overflow-x: hidden !important;
+            transition: var(--transition);
         }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(13, 148, 136, 0.4);
+
+        /* Inner glass blur hack since linear-gradient overrides backdrop in some browsers */
+        .main-sidebar::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            z-index: -1;
+            pointer-events: none;
         }
-        .btn-success {
-            background: linear-gradient(135deg, #10b981, #059669) !important;
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+
+        body.sidebar-collapsed .main-sidebar {
+            width: 80px !important;
         }
-        .btn-danger {
-            background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+
+        .main-sidebar .sidebar-menu {
+            padding-top: 15px;
+            padding-left: 12px;
+            padding-right: 12px;
         }
-        .table {
-            color: #1e293b;
+
+        .main-sidebar .sidebar-brand {
+            height: 65px !important;
+            line-height: 65px !important;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .table thead th {
-            border-top: none;
-            border-bottom: 2px solid #f1f5f9;
-            color: #64748b;
+
+        .main-sidebar .sidebar-brand a {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 1.35rem;
+            color: #fff !important;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+            text-decoration: none !important;
+        }
+
+        body.sidebar-collapsed .main-sidebar .sidebar-brand a span {
+            display: none;
+        }
+
+        .main-sidebar .sidebar-menu li.menu-header {
+            padding: 14px 14px 4px 14px !important;
+            color: rgba(255, 255, 255, 0.4) !important;
+            font-size: 0.7rem;
             font-weight: 600;
             text-transform: uppercase;
+            letter-spacing: 1.2px;
+            background: transparent !important;
+        }
+
+        body.sidebar-collapsed .main-sidebar .sidebar-menu li.menu-header {
+            display: none;
+        }
+
+        .main-sidebar .sidebar-menu li a {
+            height: 44px !important;
+            margin-bottom: 6px !important;
+            color: rgba(255, 255, 255, 0.65) !important;
+            font-weight: 500 !important;
+            font-size: 0.9rem !important;
+            display: flex;
+            align-items: center;
+            padding: 0 16px !important;
+            text-decoration: none !important;
+            transition: var(--transition);
+            background: transparent !important;
+            border-radius: var(--radius-md) !important;
+            position: relative;
+        }
+
+        .main-sidebar .sidebar-menu li a i {
+            width: 24px;
+            font-size: 18px;
+            text-align: center;
+            margin-right: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            transition: var(--transition);
+        }
+
+        body.sidebar-collapsed .main-sidebar .sidebar-menu li a i {
+            margin-right: 0;
+            width: 100%;
+        }
+
+        body.sidebar-collapsed .main-sidebar .sidebar-menu li a span {
+            display: none;
+        }
+
+        .main-sidebar .sidebar-menu li a:hover {
+            color: #fff !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            transform: translateX(4px);
+        }
+
+        .main-sidebar .sidebar-menu li a:hover i {
+            color: #fff !important;
+        }
+
+        /* Active Item Glowing Pill */
+        .main-sidebar .sidebar-menu li.active a {
+            background: rgba(16, 185, 129, 0.15) !important;
+            color: #fff !important;
+            font-weight: 600 !important;
+            transform: translateX(4px);
+        }
+
+        .main-sidebar .sidebar-menu li.active a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 60%;
+            background: var(--primary);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        .main-sidebar .sidebar-menu li.active a i {
+            color: var(--primary) !important;
+            filter: drop-shadow(0 0 8px var(--primary-glow));
+        }
+
+        .main-content {
+            padding: 40px 45px !important;
+            flex: 1;
+        }
+
+        /* Profile Glass Dropdown */
+        .dropdown-menu {
+            border: 1px solid var(--border-soft) !important;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-float) !important;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.85) !important;
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+        }
+
+        .dropdown-item {
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-primary) !important;
+            padding: 10px 14px;
+            transition: var(--transition);
+        }
+
+        .dropdown-item i {
+            color: var(--text-secondary) !important;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(16, 185, 129, 0.08) !important;
+            color: var(--primary) !important;
+        }
+
+        .dropdown-item:hover i {
+            color: var(--primary) !important;
+        }
+
+        .main-footer {
+            padding: 24px 45px !important;
+            background: transparent !important;
+            border-top: 1px solid var(--border-dark) !important;
+            color: var(--text-secondary);
+            font-weight: 500;
             font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
         }
-        .table tbody td {
-            vertical-align: middle;
-            padding: 1rem;
-            border-color: #f1f5f9;
+
+        /* Inputs - Glass styling */
+        input:not([type="submit"]):not([type="button"]),
+        select,
+        textarea {
+            background: rgba(255, 255, 255, 0.8) !important;
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-soft) !important;
+            border-radius: var(--radius-md) !important;
+            color: var(--text-primary);
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02) !important;
+            padding: 10px 14px !important;
         }
-        .section-header h1 {
-            color: #1e293b;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 4px var(--primary-glow) !important;
+            outline: none;
+            background: #fff !important;
         }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        .dashboard-card {
+            background: var(--surface-glass);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 22px;
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-float), var(--inner-highlight);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* subtle glow effect */
+        .dashboard-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .dashboard-card:hover::before {
+            opacity: 1;
+        }
+        .stat-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.stat-value {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-top: 8px;
+}
+
+.stat-green {
+    background: linear-gradient(90deg, #10b981, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
     </style>
-
-
-    <!-- CSS Libraries -->
-    <link rel="stylesheet" href="/static/Student/assets/modules/jqvmap/dist/jqvmap.min.css">
-    <link rel="stylesheet" href="/static/Student/assets/modules/summernote/summernote-bs4.css">
-    <link rel="stylesheet" href="/static/Student/assets/modules/owlcarousel2/dist/assets/owl.carousel.min.css">
-    <link rel="stylesheet" href="/static/Student/assets/modules/owlcarousel2/dist/assets/owl.theme.default.min.css">
-    <link rel="stylesheet" href="/static/Student/assets/modules/chocolat/dist/css/chocolat.css">
-    <link rel="stylesheet" href="/static/Student/assets/modules/ionicons/css/ionicons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <!-- Template CSS -->
     <link rel="stylesheet" href="/static/Student/assets/css/style.min.css">
     <link rel="stylesheet" href="/static/Student/assets/css/components.min.css">
-    <link rel="stylesheet" href="/static/full-window-ui.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
@@ -138,116 +386,145 @@
 <body class="layout-4">
 
     <div id="app">
-        <div class="main-wrapper main-wrapper-1">
-            <div class="navbar-bg"></div>
+        <!-- Sidebar SaaS Architecture -->
+        <div class="main-sidebar">
+            <aside id="sidebar-wrapper">
+                <div class="sidebar-brand">
+                    <a href="{{url_for('student_dashboard')}}">
+                        <i class="fas fa-layer-group"
+                            style="color: var(--primary); filter: drop-shadow(0 0 8px var(--primary-glow));"></i>
+                        <span>AttendX</span>
+                    </a>
+                </div>
 
+                <ul class="sidebar-menu">
+                    <li class="menu-header">Overview</li>
+                    <li class="{{ 'active' if request.path == url_for('student_dashboard') else '' }}">
+                        <a class="nav-link" href="{{ url_for('student_dashboard') }}">
+                            <i class="fas fa-grid-2"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-header">Academic</li>
+                    <li class="{{ 'active' if 'classes' in request.path else '' }}">
+                        <a class="nav-link" href="{{ url_for('classes') }}">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>Classes</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-header">Intelligence</li>
+                    <li class="{{ 'active' if 'student_attendance_report' in request.path else '' }}">
+                        <a class="nav-link" href="{{url_for('student_attendance_report')}}">
+                            <i class="fas fa-history"></i>
+                            <span>Attendance History</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-header">Personal</li>
+                    <li class="{{ 'active' if 'profile' in request.path else '' }}">
+                        <a class="nav-link" href="{{ url_for('student_profile') }}">
+                            <i class="fas fa-user-circle"></i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+
+                    <li class="mt-4">
+                        <a class="nav-link" href="{{ url_for('student_logout') }}">
+                            <i class="fas fa-arrow-right-from-bracket" style="color: #ef4444;"></i>
+                            <span style="color: #ef4444;">Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+        </div>
+
+        <div class="main-content-wrapper">
             <nav class="navbar navbar-expand-lg main-navbar">
                 <form class="form-inline mr-auto">
-                    
+                    <ul class="navbar-nav mr-3">
+                        <li><a href="#" class="nav-link nav-link-lg" id="sidebar-toggle"
+                                style="color: var(--text-secondary) !important;"><i class="fas fa-bars"></i></a></li>
+                    </ul>
                 </form>
+
                 <ul class="navbar-nav navbar-right">
                     <li class="dropdown">
-                        <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+                        <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user"
+                            style="color: var(--text-primary) !important;">
                             <img alt="image"
-                                src="https://ui-avatars.com/api/?name={{session['Student_name']}}&background=6c5ce7&color=fff"
-                                class="rounded-circle mr-1">
+                                src="https://ui-avatars.com/api/?name={{session['Student_name']}}&background=10b981&color=fff&bold=true"
+                                class="rounded-circle mr-2"
+                                style="width: 36px; height: 36px; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
                             {% if session['Student_name'] %}
-                            <div class="d-sm-none d-lg-inline-block">Hi, {{ session['Student_name'] }}</div>
+                            <div class="d-sm-none d-lg-inline-block font-weight-600" style="font-size: 0.95rem;">{{
+                                session['Student_name'] }}</div>
                             {% else %}
-                            <div class="d-sm-none d-lg-inline-block">Hi, Guest</div>
+                            <div class="d-sm-none d-lg-inline-block font-weight-600" style="font-size: 0.95rem;">Student
+                            </div>
                             {% endif %}
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-title"></div>
+                            <div class="dropdown-title"
+                                style="color: var(--text-secondary); text-transform: uppercase; font-size: 10px; letter-spacing: 1.2px; padding: 4px 14px;">
+                                Signed In As</div>
                             <a href="{{ url_for('student_profile') }}" class="dropdown-item has-icon">
-                                <i class="far fa-user"></i> Profile
+                                <i class="far fa-user"></i> Profile Settings
                             </a>
-                            <a href="{{ url_for('student_logout') }}" class="dropdown-item has-icon text-danger">
-                                <i class="fas fa-sign-out-alt"></i> Logout
+                            <div class="dropdown-divider" style="border-top-color: var(--border-dark);"></div>
+                            <a href="{{ url_for('student_logout') }}" class="dropdown-item has-icon"
+                                style="color: var(--danger) !important;">
+                                <i class="fas fa-sign-out-alt" style="color: var(--danger) !important;"></i> Sign Out
                             </a>
                         </div>
                     </li>
                 </ul>
             </nav>
 
-            <div class="main-sidebar sidebar-style-3">
-                <aside id="sidebar-wrapper">
-
-                    <div class="sidebar-brand">
-                        <a href="/student/dashboard">AttendX</a>
-                    </div>
-                    <div class="sidebar-brand sidebar-brand-sm">
-                        <a href="/student/dashboard">AX</a>
-                    </div>
-
-                    <ul class="sidebar-menu">
-
-                        <li>
-                            <a class="nav-link" href="{{ url_for('student_dashboard') }}">
-                                <i class="fas fa-home"></i>
-                                <span>Dashboard</span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a class="nav-link" href="{{ url_for('classes') }}">
-                                <i class="fas fa-chalkboard-teacher"></i>
-                                <span>Classes</span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a class="nav-link" href="{{ url_for('student_attendance_report') }}">
-                                <i class="fas fa-history"></i>
-                                <span>Attendance History</span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a class="nav-link" href="{{ url_for('student_profile') }}">
-                                <i class="fas fa-user"></i>
-                                <span>Profile</span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a class="nav-link" href="{{ url_for('student_logout') }}">
-                                <i class="fas fa-sign-out-alt"></i>
-                                <span>Logout</span>
-                            </a>
-                        </li>
-                    </ul>
-                </aside>
-            </div>
-
-            <!-- Start app main Content -->
             <div class="main-content">
-                {% block content %}
-                {% endblock %}
+                {% block content %} {% endblock %}
             </div>
 
-            <section class="section">
+            <footer class="main-footer">
+                <div class="footer-left">
+                    &copy; 2026 AttendX Platform. All rights reserved.
+                </div>
+            </footer>
+        </div>
+    </div>
 
+    <!-- General JS Scripts -->
+    <script src="/static/Student/assets/bundles/lib.vendor.bundle.js"></script>
 
-                <!-- General JS Scripts -->
-                <script src="/static/student/assets/bundles/lib.vendor.bundle.js"></script>
-                <script src="/static/student/js/CodiePie.js"></script>
+    <!-- JS Libraies -->
+    <script src="/static/Student/assets/modules/jquery.sparkline.min.js"></script>
+    <script src="/static/Student/assets/modules/chart.min.js"></script>
+    <script src="/static/Student/assets/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
 
-                <!-- JS Libraies -->
-                <script src="/static/student/assets/modules/jquery.sparkline.min.js"></script>
-                <script src="/static/student/assets/modules/chart.min.js"></script>
-                <script src="/static/student/assets/modules/owlcarousel2/dist/owl.carousel.min.js"></script>
-                <script src="/static/student/assets/modules/summernote/summernote-bs4.js"></script>
-                <script src="/static/student/assets/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
+    <!-- Template JS File -->
+    <script>
+        // Collapsible Sidebar Logic
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggle = document.getElementById('sidebar-toggle');
+            if (toggle) {
+                toggle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.body.classList.toggle('sidebar-collapsed');
+                });
+            }
+        });
 
-                <!-- Page Specific JS File -->
-                <script src="/static/student/js/page/index.js"></script>
-
-                <!-- Template JS File -->
-                <script src="/static/student/js/scripts.js"></script>
-                <script src="/static/student/js/custom.js"></script>
-
-
+        // Dynamic Glass Nav
+        window.addEventListener('scroll', function () {
+            const nav = document.querySelector('.main-navbar');
+            if (window.scrollY > 10) {
+                nav.style.background = "rgba(255,255,255,0.85)";
+            } else {
+                nav.style.background = "rgba(255,255,255,0.7)";
+            }
+        });
+    </script>
 </body>
 
 </html>

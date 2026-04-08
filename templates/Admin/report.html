@@ -1,103 +1,229 @@
 {% extends "Admin/layout.html" %}
 {% block content %}
+
 <style>
-    /* ===== LAYOUT FIX ===== */
-    body {
-        margin: 0;
-        background-color: #f4f6f9;
+    /* Elite Report Patterns */
+    .report-table-card {
+        background: #f9fafb;
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow-premium);
+        overflow: hidden;
+        margin-top: 20px;
     }
 
-    .main-content {
-        padding: 100px;
-        min-height: 200vh;
+    .report-table thead th {
+        background: rgba(0, 0, 0, 0.02);
+        color: var(--text-muted);
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 18px 25px;
+        border: none;
     }
 
-    /* ===== HEADER ===== */
-    .page-header {
+    .report-table tbody td {
+        padding: 15px 25px;
+        vertical-align: middle;
+        color: var(--text-main);
+        font-weight: 500;
+        font-size: 0.9rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    }
+
+    .report-table tbody tr:hover {
+        background: rgba(99, 102, 241, 0.02);
+    }
+
+    .elite-filter-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        padding: 25px;
+        box-shadow: var(--shadow-premium);
+        margin-bottom: 30px;
+    }
+
+    .form-control-elite {
         background: #fff;
-        padding: 15px 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-main);
+        transition: var(--transition);
     }
 
-    table th {
-        background-color: #f1f1f1;
+    .form-control-elite:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        outline: none;
+    }
+
+    .search-elite {
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 14px;
+        padding: 10px 20px 10px 45px;
+        font-size: 0.9rem;
+        width: 300px;
+        transition: var(--transition);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    .search-elite:focus {
+        width: 350px;
+        border-color: var(--primary);
+        box-shadow: 0 10px 25px rgba(99, 102, 241, 0.1);
+        outline: none;
+    }
+
+    .action-btn-elite {
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none !important;
+    }
+
+    .btn-view { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
+    .btn-view:hover { background: var(--primary); color: #fff; transform: translateY(-2px); }
+
+    .btn-pdf { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    .btn-pdf:hover { background: #ef4444; color: #fff; transform: translateY(-2px); }
+
+    .header-icon-box {
+        width: 50px;
+        height: 50px;
+        background: #fff;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: var(--primary);
+        box-shadow: var(--shadow-premium);
+        margin-right: 20px;
     }
 </style>
-</head>
-
 
 <div class="main-content">
-
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <h3>Reports</h3>
-        <input type="text" class="form-control w-25" placeholder="Search">
-    </div>
-
-    <div class="card p-4 mb-4">
-        <div class="row">
-            <div class="col-md-3">
-                <label>Report Type</label>
-                <select class="form-control">
-                    <option>Daily</option>
-                    <option>Weekly</option>
-                    <option>Monthly</option>
-                </select>
+    <section class="section">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div class="d-flex align-items-center">
+                <div class="header-icon-box">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <div>
+                    <h1 class="text-main font-weight-800 mb-0" style="font-size: 1.8rem; letter-spacing: -1px;">Intelligence Reports</h1>
+                    <p class="text-muted mb-0 font-weight-500">Synthesizing attendance data for <span class="text-primary font-weight-700">AttendX</span></p>
+                </div>
             </div>
-
-            <div class="col-md-3">
-                <label>From Date</label>
-                <input type="date" class="form-control">
-            </div>
-
-            <div class="col-md-3">
-                <label>To Date</label>
-                <input type="date" class="form-control">
-            </div>
-
-            <div class="col-md-3 d-flex align-items-end">
-                <button class="btn btn-primary w-100">
-                    Generate Report
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="card p-3">
-        <div class="d-flex justify-content-between mb-3">
-            <h5>Attendance Report</h5>
-            <div>
-                <button class="btn btn-danger btn-sm">Export PDF</button>
-                <button class="btn btn-success btn-sm">Export Excel</button>
+            <div class="position-relative">
+                <i class="fas fa-search position-absolute" style="left: 18px; top: 15px; color: var(--text-muted); opacity: 0.5;"></i>
+                <input type="text" class="search-elite" placeholder="Filter identities..." id="searchInput" onkeyup="filterTable()">
             </div>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered table-md text-center table-hover">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Student Name</th>
-                        <th>Enrollment No</th>
-                        <th>Department</th>
-                        <th>Semester</th>
-                        <th>View Attendance</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for i in student %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td>{{ i[1] }}</td>
-                        <td>{{ i[2] }}</td>
-                        <td>{{ i[4] }}</td>
-                        <td>{{ i[3] }}</td>
-                        <td><a class="btn btn-success" href="{{url_for('view_attendance',Student_id=i[0])}}">View Attendance</a></td>
-                    </tr>
-                    {% endfor %}
-            </table>
+        <!-- Filter Elite -->
+        <div class="elite-filter-card">
+            <div class="row align-items-end">
+                <div class="col-md-3">
+                    <label class="text-muted small font-weight-800 text-uppercase mb-2 d-block" style="letter-spacing: 1px;">Temporal Scope</label>
+                    <select class="form-control-elite w-100">
+                        <option>Daily Cycle</option>
+                        <option>Weekly Batch</option>
+                        <option>Monthly Archive</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="text-muted small font-weight-800 text-uppercase mb-2 d-block" style="letter-spacing: 1px;">Start Node</label>
+                    <input type="date" class="form-control-elite w-100">
+                </div>
+                <div class="col-md-3">
+                    <label class="text-muted small font-weight-800 text-uppercase mb-2 d-block" style="letter-spacing: 1px;">End Node</label>
+                    <input type="date" class="form-control-elite w-100">
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-primary font-weight-800 w-100 py-2" style="border-radius: 12px; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);">
+                        <i class="fas fa-sync-alt mr-2"></i>GENERATE BATCH
+                    </button>
+                </div>
+            </div>
         </div>
-    </div>
 
+        <div class="report-table-card">
+            <div class="p-4 d-flex justify-content-between align-items-center border-bottom bg-white">
+                <h3 class="text-main font-weight-800 mb-0" style="font-size: 1.1rem;">Data Stream</h3>
+                <a href="{{ url_for('export_all_pdf') }}" class="action-btn-elite btn-pdf">
+                    <i class="fas fa-file-export"></i> EXPORT GLOBAL LEDGER (PDF)
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table report-table mb-0" id="reportTable">
+                    <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>Student Entity</th>
+                            <th>Protocol ID</th>
+                            <th>Domain</th>
+                            <th>Term Status</th>
+                            <th class="text-center">Analytics</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in data %}
+                        <tr>
+                            <td class="text-center font-weight-700 text-muted" style="width: 60px;">{{ loop.index }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle mr-3 d-flex align-items-center justify-content-center text-white font-weight-800" style="width:36px; height:36px; background: var(--primary-gradient); box-shadow: 0 4px 10px rgba(79,70,229,0.2);">
+                                        {{ i[1][0]|upper }}
+                                    </div>
+                                    <div class="font-weight-800 text-main">{{ i[1] }}</div>
+                                </div>
+                            </td>
+                            <td>
+                                <code class="px-2 py-1 bg-soft-primary text-primary font-weight-700" style="border-radius: 6px; font-size: 0.8rem;">{{ i[2] }}</code>
+                            </td>
+                            <td>
+                                <div class="font-weight-700 text-main" style="font-size: 0.85rem;">{{ i[4] }}</div>
+                            </td>
+                            <td><span class="badge badge-soft-primary px-3 py-2" style="border-radius: 8px; font-weight: 800;">SEASON {{ i[3] }}</span></td>
+                            <td class="text-center">
+                                <a href="/viewattendance/{{ i[0] }}" class="action-btn-elite btn-view mr-2">
+                                    <i class="fas fa-stream"></i> VIEW
+                                </a>
+                                <a href="/export_pdf/{{ i[0] }}" class="action-btn-elite btn-pdf">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
 </div>
+
+<script>
+    function filterTable() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('#reportTable tbody tr');
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(input) ? '' : 'none';
+        });
+    }
+</script>
+
 {% endblock %}

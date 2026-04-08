@@ -1,6 +1,9 @@
-from flask import Flask, render_template, redirect, request, url_for, session,jsonify, flash
+from flask import Flask, Response, render_template, redirect, request, url_for, session,jsonify, flash
 from functools import wraps
-from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
+import openpyxl
+from io import BytesIO
+
 import os
 import math
 import uuid
@@ -12,12 +15,10 @@ import numpy as np
 import cv2
 from datetime import datetime
 import qrcode
-import pdfkit
 
 
 import pymysql
 app = Flask(__name__)
-
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  
 app.secret_key = "attendx_secret_key"
 conn=pymysql.connect(host='localhost', user='root', password='', db='db_atten')
@@ -28,14 +29,14 @@ def alogin_process():
     admin_email = request.form.get('admin_email')
     admin_pass = request.form.get('admin_pass')
     cursor = conn.cursor() 
-    cursor.execute("SELECT * FROM admin_login WHERE admin_email=%s AND admin_pass=%s", (admin_email, admin_pass))
+    cursor.execute("SELECT * FROM admin_login WHERE admin_email=%s", (admin_email))
     admin = cursor.fetchone()
     if admin:
-        session['admin_id'] = admin[0]
-        session['admin_name'] = admin[1]
-        session['admin_email'] = admin[2]
-        session['Semester'] = admin[3]
-        return redirect(url_for('dashboard'))
+        if check_password_hash(admin[3], admin_pass):
+            session['admin_id'] = admin[0]
+            session['admin_name'] = admin[1]
+            session['admin_email'] = admin[2]
+            return redirect(url_for('dashboard'))
     return render_template("Admin/admin_login.html", error="Invalid email or password")
 
 @app.route("/dashboard")
@@ -148,7 +149,7 @@ def add_user():
 
 
 
-@app.route("/studentprocess", methods=["POST"])
+@app.route("/studentprocess", methods=["POST", "GET"])
 def studentprocess():
 
     if 'admin_id' not in session:
@@ -156,14 +157,15 @@ def studentprocess():
 
     try:
 
-        Student_name = request.form['student_name']
-        Division = request.form['Division']
-        Enrollment_no = request.form['Enrollment_no']
-        Department_id = request.form['Department_id']
-        Semester = request.form['Semester']
-        Email = request.form['Email']
-        password = request.form['password']
-        contact = request.form['contact']
+        Student_name = request.form.get('student_name')
+        Division = request.form.get('Division')
+        Enrollment_no = request.form.get('Enrollment_no')
+        Department_id = request.form.get('Department_id')
+        Semester = request.form.get('Semester')
+        Email = request.form.get('Email')
+        password = request.form.get('password')
+        contact = request.form.get('contact')
+        password = generate_password_hash(password)
 
         filename = None
 
@@ -185,7 +187,6 @@ def studentprocess():
 
                 filepath = os.path.join(UPLOAD_FOLDER, filename)
 
-                
                 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
                 file.save(filepath)
@@ -227,7 +228,8 @@ def studentprocess():
             Email,
             password,
             contact,
-            filename
+            filepath       
+                
         )
 
         cursor.execute(query, values)
@@ -272,6 +274,7 @@ def delete_user(Student_id):
 def edit_user(Student_id):
     cursor = conn.cursor()
 
+
     query = "SELECT * FROM student_data WHERE Student_id=%s"
     cursor.execute(query, (Student_id,))
     student = cursor.fetchone()
@@ -294,13 +297,10 @@ def edit_user_process(Student_id):
     Enrollment_no = request.form['Enrollment_no']
     Department_id = request.form['Department_id']
     Semester = request.form['Semester']
-    Email = request.form['Email']
-    password = request.form['password']
-    contact = request.form['contact']
-
+    contact = request.form['contact']       
     cursor = conn.cursor()
-    query = "UPDATE student_data SET Student_name=%s, Division=%s, Enrollment_no=%s, Department_id=%s, Semester=%s, Email=%s, Password=%s, Contact=%s WHERE Student_id=%s"
-    val = (student_name, Division, Enrollment_no, Department_id, Semester, Email, password, contact, Student_id)
+    query = "UPDATE student_data SET Student_name=%s, Division=%s, Enrollment_no=%s, Department_id=%s, Semester=%s, Contact=%s WHERE Student_id=%s"
+    val = (student_name, Division, Enrollment_no, Department_id, Semester, contact, Student_id)
     cursor.execute(query, val)
     conn.commit()
     cursor.close()
@@ -327,6 +327,7 @@ def insert_faculty():
     Department_id = request.form['Department_id']
     contact = request.form['contact']
     Password = request.form['Password']
+    password = generate_password_hash(Password)
     cursor = conn.cursor()
     
     select_query = "SELECT * FROM faculty_data WHERE Faculty_email=%s"
@@ -384,14 +385,12 @@ def edit_faculty(Faculty_id):
 @app.route("/edit_faculty_process/<int:Faculty_id>", methods=["POST"])
 def edit_faculty_process(Faculty_id):
     Faculty_name = request.form['Faculty_name']
-    Faculty_email = request.form['Faculty_email']
     Department_id = request.form['Department_id']
     contact = request.form['contact']
-    Password = request.form['Password']
 
     cursor = conn.cursor()
-    query = "UPDATE faculty_data SET Faculty_name=%s, Faculty_email=%s, Department_id=%s, contact=%s, Password=%s WHERE Faculty_id=%s"
-    val = (Faculty_name, Faculty_email, Department_id, contact, Password, Faculty_id)
+    query = "UPDATE faculty_data SET Faculty_name=%s, Department_id=%s, contact=%s WHERE Faculty_id=%s"
+    val = (Faculty_name, Department_id, contact, Faculty_id)
     cursor.execute(query, val)
     conn.commit()
     cursor.close()
@@ -523,13 +522,108 @@ def export_pdf(Student_id):
     data = cursor.fetchall()
     cursor.close()
 
-    rendered = render_template("Admin/attendance_pdf.html", data=data)
+    if not data:
+        flash("No attendance records to export for this student.", "warning")
+        return redirect(url_for('report'))
 
-    pdf = pdfkit.from_string(rendered, False, configuration=config)
+    # FPDF Generation
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # Title
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(190, 10, txt="AttendX Attendance Report", ln=True, align='C')
+    pdf.ln(10)
 
-    response = make_response(pdf)
+    # Student Info
+    pdf.set_font("Arial", size=12)
+    pdf.cell(190, 8, txt=f"Student Name: {data[0][0]}", ln=True)
+    pdf.cell(190, 8, txt=f"Enrollment No: {data[0][1]}", ln=True)
+    pdf.cell(190, 8, txt=f"Department: {data[0][2]}", ln=True)
+    pdf.cell(190, 8, txt=f"Semester: {data[0][3]}", ln=True)
+    pdf.ln(10)
+
+    # Table Header
+    pdf.set_font("Arial", 'B', 12)
+    pdf.set_fill_color(240, 240, 240) # light gray summary header
+    pdf.cell(95, 10, 'Date', 1, 0, 'C', fill=True)
+    pdf.cell(95, 10, 'Status', 1, 1, 'C', fill=True)
+    
+    # Table Content
+    pdf.set_font("Arial", '', 12)
+    for row in data:
+        pdf.cell(95, 10, str(row[4]), 1, 0, 'C')
+        # Check status length or content
+        status_text = str(row[5])
+        pdf.cell(95, 10, status_text, 1, 1, 'C')
+
+    # Output to response
+    pdf_bytes = pdf.output(dest='S').encode('latin-1')
+
+    # For modern download filename (spaces swapped to underscores)
+    safe_name = str(data[0][0]).replace(' ', '_')
+    
+    response = make_response(pdf_bytes)
     response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = 'attachment; filename=attendance.pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename={safe_name}_attendance.pdf'
+
+    return response
+
+@app.route("/export_all_pdf")
+def export_all_pdf():
+    if 'admin_id' not in session:
+        return redirect(url_for('login'))
+
+    cursor = conn.cursor()
+    query = """
+    SELECT 
+        a.Student_name,
+        a.Enrollment_no,
+        b.Department_name,
+        a.Semester
+    FROM student_data a
+    JOIN department_data b 
+    ON a.Department_id = b.Department_id
+    """
+    cursor.execute(query)
+    data = cursor.fetchall()
+    cursor.close()
+
+    if not data:
+        flash("No student records found to export.", "warning")
+        return redirect(url_for('report'))
+
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # Title
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(190, 10, txt="AttendX Master Student Report", ln=True, align='C')
+    pdf.ln(10)
+
+    # Table Header
+    pdf.set_font("Arial", 'B', 10)
+    pdf.set_fill_color(240, 240, 240)
+    # Widths: Name(55), Enrollment(45), Dept(60), Sem(30)
+    pdf.cell(10, 10, '#', 1, 0, 'C', fill=True)
+    pdf.cell(50, 10, 'Student Name', 1, 0, 'C', fill=True)
+    pdf.cell(45, 10, 'Enrollment No', 1, 0, 'C', fill=True)
+    pdf.cell(55, 10, 'Department', 1, 0, 'C', fill=True)
+    pdf.cell(30, 10, 'Semester', 1, 1, 'C', fill=True)
+    
+    # Table Content
+    pdf.set_font("Arial", '', 10)
+    for idx, row in enumerate(data, start=1):
+        pdf.cell(10, 10, str(idx), 1, 0, 'C')
+        pdf.cell(50, 10, str(row[0]), 1, 0, 'C')
+        pdf.cell(45, 10, str(row[1]), 1, 0, 'C')
+        pdf.cell(55, 10, str(row[2]), 1, 0, 'C')
+        pdf.cell(30, 10, str(row[3]), 1, 1, 'C')
+
+    pdf_bytes = pdf.output(dest='S').encode('latin-1')
+    response = make_response(pdf_bytes)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=Master_Student_Report.pdf'
 
     return response
 
@@ -537,16 +631,26 @@ def export_pdf(Student_id):
 def report():
     if 'admin_id' not in session:
         return redirect(url_for('login'))
+
     cursor = conn.cursor()
 
-    query = "SELECT a.Student_id,Student_name,Enrollment_no,Semester,b.Department_name FROM student_data as a,department_data as b WHERE a.Department_id = b.Department_id;"
-    
-    
+    query = """
+    SELECT 
+        a.Student_id,
+        a.Student_name,
+        a.Enrollment_no,
+        a.Semester,
+        b.Department_name
+    FROM student_data a
+    JOIN department_data b 
+    ON a.Department_id = b.Department_id
+    """
+
     cursor.execute(query)
-    student = cursor.fetchall()
-    conn.commit()
+    data = cursor.fetchall()
     cursor.close()
-    return render_template("Admin/report.html", student=student)
+
+    return render_template("Admin/report.html", data=data)
 
 @app.route("/viewattendance/<int:Student_id>")
 def view_attendance(Student_id):
@@ -623,11 +727,11 @@ def faculty_login_process():
     Faculty_email = request.form['Faculty_email']
     Password = request.form['Password']
     cursor = conn.cursor()
-    query = '''SELECT f.Faculty_id, f.Faculty_name, f.Faculty_email, f.Department_id, f.Contact, d.Department_name FROM faculty_data f 
-    JOIN department_data d on f.Department_id=d.Department_id WHERE Faculty_email=%s AND Password=%s'''
-    cursor.execute(query, (Faculty_email, Password))
+    query = '''SELECT f.Faculty_id, f.Faculty_name, f.Faculty_email, f.Department_id, f.Contact, d.Department_name, f.Password FROM faculty_data f 
+    JOIN department_data d on f.Department_id=d.Department_id WHERE Faculty_email=%s '''
+    cursor.execute(query, (Faculty_email))
     faculty = cursor.fetchone()
-    if faculty:
+    if faculty and check_password_hash(faculty[6], Password):
         session['faculty_id'] = faculty[0]
         session['Faculty_name'] = faculty[1]
         session['Faculty_email'] = faculty[2]
@@ -743,7 +847,177 @@ def faculty_student_report():
 
     if 'faculty_id' not in session:
         return redirect(url_for('faculty_login'))
-    return render_template("Faculty/faculty_student_report.html")
+    cursor = conn.cursor()
+
+    query = """
+    SELECT 
+        a.Student_id,
+        a.Student_name,
+        a.Enrollment_no,
+        a.Semester,
+        b.Department_name
+    FROM student_data a
+    JOIN department_data b 
+    ON a.Department_id = b.Department_id
+    """
+
+    cursor.execute(query)
+    data2 = cursor.fetchall()
+    cursor.close()
+
+    return render_template("Faculty/faculty_student_report.html", data2=data2)
+
+@app.route("/viewattendance_student/<int:Student_id>")
+def viewattendance_student(Student_id):
+    cursor = conn.cursor()
+
+    query = """
+    SELECT 
+    s.Student_name,
+    s.Enrollment_no,
+    d.Department_name,
+    s.Semester,
+    a.date,
+    a.status
+    FROM attendance a
+    JOIN student_data s ON a.Student_id = s.Student_id
+    JOIN department_data d ON s.Department_id = d.Department_id
+    WHERE a.Student_id = %s
+    """
+
+    cursor.execute(query, (Student_id,))
+    data = cursor.fetchall()
+
+    cursor.close()
+
+    return render_template("Faculty/viewattendance_student.html", data=data)
+
+@app.route("/export_pdf_faculty/<int:Student_id>")
+def export_pdf_faculty(Student_id):
+    cursor = conn.cursor()
+
+    query = """
+    SELECT 
+    s.Student_name,
+    s.Enrollment_no,
+    d.Department_name,
+    s.Semester,
+    a.date,
+    a.status
+    FROM attendance a
+    JOIN student_data s ON a.Student_id = s.Student_id
+    JOIN department_data d ON s.Department_id = d.Department_id
+    WHERE a.Student_id = %s
+    """
+
+    cursor.execute(query, (Student_id,))
+    data = cursor.fetchall()
+    cursor.close()
+
+    if not data:
+        flash("No attendance records to export for this student.", "warning")
+        return redirect(url_for('faculty_student_report'))
+
+    # FPDF Generation
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # Title
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(190, 10, txt="AttendX Attendance Report", ln=True, align='C')
+    pdf.ln(10)
+
+    # Student Info
+    pdf.set_font("Arial", size=12)
+    pdf.cell(190, 8, txt=f"Student Name: {data[0][0]}", ln=True)
+    pdf.cell(190, 8, txt=f"Enrollment No: {data[0][1]}", ln=True)
+    pdf.cell(190, 8, txt=f"Department: {data[0][2]}", ln=True)
+    pdf.cell(190, 8, txt=f"Semester: {data[0][3]}", ln=True)
+    pdf.ln(10)
+
+    # Table Header
+    pdf.set_font("Arial", 'B', 12)
+    pdf.set_fill_color(240, 240, 240) # light gray summary header
+    pdf.cell(95, 10, 'Date', 1, 0, 'C', fill=True)
+    pdf.cell(95, 10, 'Status', 1, 1, 'C', fill=True)
+    
+    # Table Content
+    pdf.set_font("Arial", '', 12)
+    for row in data:
+        pdf.cell(95, 10, str(row[4]), 1, 0, 'C')
+        # Check status length or content
+        status_text = str(row[5])
+        pdf.cell(95, 10, status_text, 1, 1, 'C')
+
+    # Output to response
+    pdf_bytes = pdf.output(dest='S').encode('latin-1')
+
+    # For modern download filename (spaces swapped to underscores)
+    safe_name = str(data[0][0]).replace(' ', '_')
+    
+    response = make_response(pdf_bytes)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename={safe_name}_attendance.pdf'
+
+    return response
+
+@app.route("/export_all_pdf")
+def export_all_pdf_faculty():
+    if 'faculty_id' not in session:
+        return redirect(url_for('faculty_login'))
+
+    cursor = conn.cursor()
+    query = """
+    SELECT 
+        a.Student_name,
+        a.Enrollment_no,
+        b.Department_name,
+        a.Semester
+    FROM student_data a
+    JOIN department_data b 
+    ON a.Department_id = b.Department_id
+    """
+    cursor.execute(query)
+    data = cursor.fetchall()
+    cursor.close()
+
+    if not data:
+        flash("No student records found to export.", "warning")
+        return redirect(url_for('faculty_student_report'))
+
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # Title
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(190, 10, txt="AttendX Master Student Report", ln=True, align='C')
+    pdf.ln(10)
+
+    # Table Header
+    pdf.set_font("Arial", 'B', 10)
+    pdf.set_fill_color(240, 240, 240)
+    # Widths: Name(55), Enrollment(45), Dept(60), Sem(30)
+    pdf.cell(10, 10, '#', 1, 0, 'C', fill=True)
+    pdf.cell(50, 10, 'Student Name', 1, 0, 'C', fill=True)
+    pdf.cell(45, 10, 'Enrollment No', 1, 0, 'C', fill=True)
+    pdf.cell(55, 10, 'Department', 1, 0, 'C', fill=True)
+    pdf.cell(30, 10, 'Semester', 1, 1, 'C', fill=True)
+    
+    # Table Content
+    pdf.set_font("Arial", '', 10)
+    for idx, row in enumerate(data, start=1):
+        pdf.cell(10, 10, str(idx), 1, 0, 'C')
+        pdf.cell(50, 10, str(row[0]), 1, 0, 'C')
+        pdf.cell(45, 10, str(row[1]), 1, 0, 'C')
+        pdf.cell(55, 10, str(row[2]), 1, 0, 'C')
+        pdf.cell(30, 10, str(row[3]), 1, 1, 'C')
+
+    pdf_bytes = pdf.output(dest='S').encode('latin-1')
+    response = make_response(pdf_bytes)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=Master_Student_Report.pdf'
+
+    return response
 
 @app.route("/faculty_profile")
 def faculty_profile():
@@ -761,8 +1035,7 @@ def faculty_edit_profile():
     faculty_id = session['faculty_id']
 
     cursor.execute("""
-        SELECT Faculty_id, Faculty_name, Faculty_email, 
-            Password, Department_id, contact
+        SELECT Faculty_id, Faculty_name, Department_id, contact
         FROM faculty_data
         WHERE Faculty_id=%s
     """, (faculty_id,))
@@ -783,14 +1056,12 @@ def faculty_edit_profile():
 @app.route("/edit_faculty_profile_process/<int:Faculty_id>", methods=["POST"])
 def edit_faculty_profile_process(Faculty_id):
     Faculty_name = request.form['Faculty_name']
-    Faculty_email = request.form['Faculty_email']
     Department_id = request.form['Department_id']
     contact = request.form['contact']
-    Password = request.form['Password']
 
     cursor = conn.cursor()
-    query = "UPDATE faculty_data SET Faculty_name=%s, Faculty_email=%s, Department_id=%s, contact=%s, Password=%s WHERE Faculty_id=%s"
-    val = (Faculty_name, Faculty_email, Department_id, contact, Password, Faculty_id)
+    query = "UPDATE faculty_data SET Faculty_name=%s, Department_id=%s, contact=%s WHERE Faculty_id=%s"
+    val = (Faculty_name, Department_id, contact, Faculty_id)
     cursor.execute(query, val)
     conn.commit()
     cursor.close()
@@ -811,19 +1082,20 @@ def student_login_process():
     query = """
         SELECT s.Student_id, s.Student_name, s.Enrollment_no,
             s.Department_id, s.Email, s.contact,
-            d.Department_name
+            d.Department_name, s.password
         FROM student_data s
         JOIN department_data d
         ON s.Department_id = d.Department_id
-        WHERE s.Enrollment_no=%s AND s.password=%s
+        WHERE s.Enrollment_no=%s
     """
 
-    cursor.execute(query, (Enrollment_no, password))
+    cursor.execute(query, (Enrollment_no,))
     student = cursor.fetchone()
     conn.commit()
     cursor.close()
+    print(student[7])
 
-    if student:
+    if student and check_password_hash(student[7], password):
         session['Student_id'] = student[0]
         session['Student_name'] = student[1]
         session['Enrollment_no'] = student[2]
@@ -870,15 +1142,21 @@ def student_dashboard():
     today_classes_count = len(today_classes)
 
     cursor.execute("""
-    SELECT COUNT(*) as total
-    FROM attendance
-    WHERE Student_id=%s
-    """,(student_id,))
-    total_attendance = cursor.fetchone()['total']
+        SELECT 
+            COUNT(*) as total_classes,
+            SUM(CASE WHEN status = 'Present' THEN 1 ELSE 0 END) as present_count
+        FROM attendance
+        WHERE Student_id=%s
+        """, (student_id,))
+
+    data = cursor.fetchone()
+
+    total_classes = data['total_classes']
+    present_count = data['present_count'] if data['present_count'] else 0
 
     attendance_percentage = 0
     if total_classes > 0:
-        attendance_percentage = round((total_attendance/total_classes)*100)
+        attendance_percentage = round((present_count / total_classes) * 100)
 
     cursor.execute("""
     SELECT *
@@ -954,8 +1232,7 @@ def student_edit_profile(Student_id):
     
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT Student_id, Student_name, Email, 
-            password, Department_id, contact
+        SELECT Student_id, Student_name, Department_id, contact
         FROM student_data
         WHERE Student_id=%s
     """, (Student_id,))
@@ -976,14 +1253,12 @@ def student_edit_profile_process():
     Student_id = request.form['Student_id']
 
     Student_name = request.form['Student_name']
-    Email = request.form['Email']
     Department_id = request.form['Department_id']
     contact = request.form['contact']
-    password = request.form['password']
 
     cursor = conn.cursor()
-    query = "UPDATE student_data SET Student_name=%s, Email=%s, Department_id=%s, contact=%s, password=%s WHERE Student_id=%s"
-    val = (Student_name, Email, Department_id, contact, password, Student_id)
+    query = "UPDATE student_data SET Student_name=%s, Department_id=%s, contact=%s WHERE Student_id=%s"
+    val = (Student_name, Department_id, contact, Student_id)
     cursor.execute(query, val)
     conn.commit()
     cursor.close()
@@ -992,10 +1267,173 @@ def student_edit_profile_process():
 @app.route("/student_attendance_report")
 def student_attendance_report():
 
+
+    student_id = session['Student_id']
+
+    cursor = conn.cursor()
+
+    query = """
+    SELECT 
+        s.Student_name,
+        s.Enrollment_no,
+        d.Department_name,
+        s.Semester,
+        a.date,
+        a.status
+    FROM attendance a
+    JOIN student_data s ON a.Student_id = s.Student_id
+    JOIN department_data d ON s.Department_id = d.Department_id
+    WHERE a.Student_id = %s
+    """
+
+    cursor.execute(query, (student_id,))
+    data1 = cursor.fetchall()
+
+    cursor.close()
+
+    
+
+    return render_template(
+        "Student/student_attendance_report.html",
+        data1=data1,
+    
+    )
+
+@app.route("/export_pdf_student/<int:Student_id>")
+def export_pdf_student(Student_id):
+    cursor = conn.cursor()
+    print("Exporting PDF for Student ID:", Student_id)
+    query = """
+    SELECT 
+    s.Student_name,
+    s.Enrollment_no,
+    d.Department_name,
+    s.Semester,
+    a.date,
+    a.status
+    FROM attendance a
+    JOIN student_data s ON a.Student_id = s.Student_id
+    JOIN department_data d ON s.Department_id = d.Department_id
+    WHERE a.Student_id = %s
+
+    """
+
+    cursor.execute(query, (Student_id,))
+    data = cursor.fetchall()
+    cursor.close()
+
+    if not data:
+        flash("No attendance records to export for this student.", "warning")
+        return redirect(url_for('student_attendance_report'))
+
+    # FPDF Generation
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # Title
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(190, 10, txt="AttendX Attendance Report", ln=True, align='C')
+    pdf.ln(10)
+
+    # Student Info
+    pdf.set_font("Arial", size=12)
+    pdf.cell(190, 8, txt=f"Student Name: {data[0][0]}", ln=True)
+    pdf.cell(190, 8, txt=f"Enrollment No: {data[0][1]}", ln=True)
+    pdf.cell(190, 8, txt=f"Department: {data[0][2]}", ln=True)
+    pdf.cell(190, 8, txt=f"Semester: {data[0][3]}", ln=True)
+    pdf.ln(10)
+
+    # Table Header
+    pdf.set_font("Arial", 'B', 12)
+    pdf.set_fill_color(240, 240, 240) # light gray summary header
+    pdf.cell(95, 10, 'Date', 1, 0, 'C', fill=True)
+    pdf.cell(95, 10, 'Status', 1, 1, 'C', fill=True)
+    
+    # Table Content
+    pdf.set_font("Arial", '', 12)
+    for row in data:
+        pdf.cell(95, 10, str(row[4]), 1, 0, 'C')
+        # Check status length or content
+        status_text = str(row[5])
+        pdf.cell(95, 10, status_text, 1, 1, 'C')
+
+    # Output to response
+    pdf_bytes = pdf.output(dest='S').encode('latin-1')
+
+    # For modern download filename (spaces swapped to underscores)
+    safe_name = str(data[0][0]).replace(' ', '_')
+    
+    response = make_response(pdf_bytes)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename={safe_name}_attendance.pdf'
+
+    return response
+
+@app.route("/export_excel_student/<int:Student_id>")
+def export_excel_student(Student_id):
+
     if 'Student_id' not in session:
         return redirect(url_for('student_login'))
-    
-    return render_template("Student/student_attendance_report.html")
+
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+    query = """
+    SELECT s.Student_name, s.Enrollment_no, d.Department_name,
+        s.Semester, a.date, a.status
+    FROM attendance a
+    JOIN student_data s ON a.Student_id = s.Student_id
+    JOIN department_data d ON s.Department_id = d.Department_id
+    WHERE a.Student_id = %s
+    ORDER BY a.date DESC
+    """
+
+    cursor.execute(query, (Student_id,))
+    data = cursor.fetchall()
+    cursor.close()
+
+    # Create Excel file
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Attendance Report"
+
+    # Headers
+    headers = ["Student Name", "Enrollment No", "Department", "Semester", "Date", "Status"]
+    ws.append(headers)
+
+    # Data rows
+    for row in data:
+        ws.append([
+            row['Student_name'],
+            row['Enrollment_no'],
+            row['Department_name'],
+            row['Semester'],
+            str(row['date']),
+            row['status']
+        ])
+
+    # Styling (optional but good)
+    for col in ws.columns:
+        max_length = 0
+        col_letter = col[0].column_letter
+
+        for cell in col:
+            if cell.value:
+                max_length = max(max_length, len(str(cell.value)))
+
+        ws.column_dimensions[col_letter].width = max_length + 2
+
+    # Save to memory
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+    return Response(
+        output,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={
+            "Content-Disposition": f"attachment; filename=attendance_report_{Student_id}.xlsx"
+        }
+    )
+
 
 @app.route("/mark_attendance/<int:class_id>")
 def mark_attendance(class_id):
@@ -1079,12 +1517,14 @@ def mark_attendanceprocess():
     unknown_encodings = face_recognition.face_encodings(rgb_frame)
 
     if len(unknown_encodings) == 0:
-        flash("No face detected in the image. Please try again.", "danger")
+        msg3="No face detected in the image. Please try again."
+        return render_template("Student/student_dashboard.html", msg3=msg3)
         return redirect(url_for('mark_attendance', class_id=class_id))
 
     unknown_encoding = unknown_encodings[0]
     if len(unknown_encodings) > 1:
-        flash("Multiple faces detected! Please ensure only you are in the frame.", "danger")
+        msg4="Multiple faces detected! Please ensure only you are in the frame."
+        return render_template("Student/student_dashboard.html", msg4=msg4)
         return redirect(url_for('mark_attendance', class_id=class_id))
 
     cursor.execute(
@@ -1095,31 +1535,30 @@ def mark_attendanceprocess():
     student = cursor.fetchone()
 
     if not student:
-        flash("Student record not found in database.", "danger")
-        return redirect(url_for('student_dashboard'))
+        msg5="Student record not found in database."
+        return render_template("Student/student_dashboard.html", msg5=msg5)
 
     img_filename = student['img_of_student']
     img_path = os.path.join("static/student_img_upload", img_filename)
 
     if not os.path.exists(img_path):
-        flash("Your registration image is missing. Please contact admin.", "danger")
-        return redirect(url_for('student_dashboard'))
+        msg6="Your registration image is missing. Please contact admin."
+        return render_template("Student/student_dashboard.html", msg6=msg6)
 
     known_image = face_recognition.load_image_file(img_path)
     known_encodings = face_recognition.face_encodings(known_image)
 
     if len(known_encodings) == 0:
-        flash("No face was found in your stored registration image.", "danger")
+        msg7="No face was found in your stored registration image."
+        return render_template("Student/student_dashboard.html", msg7=msg7)
         return redirect(url_for('student_dashboard'))
 
     known_encoding = known_encodings[0]
 
 
     distance = face_recognition.face_distance([known_encoding], unknown_encoding)
-
     # Relaxed tolerance from 0.5 to 0.55 to reduce false rejections due to lighting
     if distance[0] < 0.55:
-
         today = datetime.now().date()
 
         cursor.execute("""
@@ -1131,20 +1570,38 @@ def mark_attendanceprocess():
         already = cursor.fetchone()
 
         if already:
-            flash("Attendance has already been marked for this class today.", "warning")
-            return redirect(url_for('student_dashboard'))
+            #flash("Attendance has already been marked for this class today.", "warning")
+            msg='Attendance has already been marked for this class today.'
+            #return redirect(url_for('student_dashboard',msg=msg))
+            return render_template("Student/student_dashboard.html", msg=msg)
 
         cursor.execute("""
         INSERT INTO attendance (Student_id, class_id, date, status)
         VALUES (%s, %s, %s, %s)
         """, (student['Student_id'], class_id, today, "Present"))
         conn.commit()
-
-        flash("Attendance Marked Successfully!", "success")
-        return redirect(url_for('student_dashboard'))
+        print("hi")
+        #flash("Attendance Marked Successfully!", "success")
+        msg1='Attendance Marked Successfully!'
+        return render_template("Student/student_dashboard.html", msg1=msg1)
     
-    flash("Face does not match the registered user. Attendance denied.", "danger")
+    msg2="Face does not match the registered user. Attendance denied."
+    return render_template("Student/student_dashboard.html", msg2=msg2)
+
     return redirect(url_for('mark_attendance', class_id=class_id))
+
+@app.route('/save_location', methods=['POST','GET'])
+def save_location():
+    data = request.get_json()
+
+    latitude = data.get('latitude')
+    longitude = data.get('longitude')
+
+    print("Latitude:", latitude)
+    print("Longitude:", longitude)
+
+
+    return latitude,longitude
 
 @app.route("/student_logout")
 def student_logout():

@@ -4,116 +4,457 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-    <title>Dashboard &mdash; AttendX</title>
+    <title>AttendX &mdash; Premium Admin Dashboard</title>
 
     <!-- General CSS Files -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/static/Admin/assets/modules/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
     <style>
-        body, .main-sidebar .sidebar-menu li a {
-            font-family: 'Inter', sans-serif !important;
-        }
-        .main-sidebar .sidebar-menu li a {
-            font-weight: 500;
-        }
-        .navbar-bg {
-            height: 115px;
-            background: linear-gradient(135deg, #4f46e5, #7e22ce) !important;
-        }
-        .main-sidebar .sidebar-brand a {
-            font-weight: 800;
-            font-size: 1.3rem;
-            color: #4f46e5;
-            letter-spacing: -0.5px;
-        }
-        .main-navbar .nav-link {
-            color: #1e293b !important;
-            font-weight: 600;
-        }
-        .main-sidebar .sidebar-menu li.active a {
-            color: #4f46e5 !important;
-        }
-        .main-sidebar .sidebar-menu li.active a::before {
-            background-color: #4f46e5 !important;
-        }
-        .main-footer {
-            border-top: 1px solid #e2e8f0;
-            background: #fff;
+        :root {
+            --primary: #6366f1;
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --sidebar-gradient: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            --glass-bg: rgba(255, 255, 255, 0.78);
+            --glass-strong: rgba(255, 255, 255, 0.92);
+
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --glass-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            --glass-blur: blur(14px);
+            --bg-soft: #f1f5f9;
+            --text-main: #020617;
+            --text-muted: #475569;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            /* Multi-layer shadow for sharp elevation */
+            --shadow-premium:
+                0 2px 6px rgba(0, 0, 0, 0.05),
+                0 12px 30px rgba(0, 0, 0, 0.10);
+            --inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Global UI Overrides for Premium SaaS Look */
+        .glass {
+            background: var(--glass-bg);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            border-radius: 16px;
+        }
+
+        body {
+            background: var(--bg-soft);
+            background-image: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.08), transparent);
+            font-family: 'Inter', 'Poppins', sans-serif !important;
+            margin: 0 !important;
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Animated Background Blobs (Minimal Dominance) */
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 40vw;
+            height: 40vw;
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(120px);
+            opacity: 0.05;
+            pointer-events: none;
+            animation: blob-float 25s infinite alternate ease-in-out;
+        }
+
+        body::before {
+            top: -10%;
+            left: -10%;
+            background: #6366f1;
+        }
+
+        body::after {
+            bottom: -5%;
+            right: -5%;
+            background: #a855f7;
+            animation-delay: -12.5s;
+        }
+
         .card {
-            border-radius: 20px;
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            background: #ffffff;
-            margin-bottom: 30px;
-        }
-        .card .card-header, .card .card-body {
-            padding: 1.5rem;
-        }
-        .form-control {
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
-            border: 1px solid #cbd5e1;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-        .form-control:focus {
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
-            border-color: #4f46e5;
+            background: rgba(255, 255, 255, 0.85) !important;
+
+            border: 1px solid rgba(0, 0, 0, 0.06) !important;
+
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+
+            backdrop-filter: blur(10px);
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #4f46e5, #7e22ce) !important;
-            border: none;
-            border-radius: 12px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
+        @keyframes blob-float {
+            from {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+            }
+
+            to {
+                transform: translate(100px, 150px) scale(1.1) rotate(45deg);
+            }
         }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+
+        /* Navbar Architecture - Sticky and Full Width within Wrapper */
+        .main-navbar {
+            background: var(--glass-strong) !important;
+            -webkit-backdrop-filter: var(--glass-blur) !important;
+            backdrop-filter: var(--glass-blur) !important;
+            border-bottom: 1px solid var(--glass-border) !important;
+            box-shadow: var(--glass-shadow) !important;
+            height: 60px;
+            position: sticky !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            top: 0;
+            z-index: 999;
+            padding: 0 30px !important;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
         }
-        .btn-success {
-            background: linear-gradient(135deg, #10b981, #059669) !important;
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+
+        .main-content-wrapper {
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            min-height: 100vh;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            --sidebar-gradient: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+            position: relative;
         }
-        .btn-danger {
-            background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+
+        input,
+        select,
+        textarea {
+            background: rgba(255, 255, 255, 0.75) !important;
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
         }
-        .table {
-            color: #1e293b;
+
+        body.sidebar-collapsed .main-content-wrapper {
+            margin-left: 70px;
+            width: calc(100% - 70px);
         }
-        .table thead th {
-            border-top: none;
-            border-bottom: 2px solid #f1f5f9;
-            color: #64748b;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            padding: 1rem;
+
+        /* Sidebar Elite Architecture - Collapsible & Compact */
+        .main-sidebar {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 260px !important;
+            height: 100vh !important;
+            background: var(--sidebar-gradient) !important;
+            z-index: 1000 !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            overflow-x: hidden !important;
+            transition: var(--transition);
+            position: relative;
+            box-shadow:
+                6px 0 25px rgba(0, 0, 0, 0.35),
+                inset -1px 0 0 rgba(255, 255, 255, 0.06);
+
         }
-        .table tbody td {
-            vertical-align: middle;
-            padding: 1rem;
-            border-color: #f1f5f9;
+
+        .main-sidebar::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+
+            background: linear-gradient(180deg,
+                    rgba(255, 255, 255, 0.05),
+                    rgba(255, 255, 255, 0));
+
+            pointer-events: none;
         }
-        .section-header h1 {
-            color: #1e293b;
-            font-weight: 700;
+
+        body.sidebar-collapsed .main-sidebar {
+            width: 70px !important;
+        }
+
+        .main-sidebar .sidebar-menu li a {
+            position: relative;
+            border-radius: 10px;
+        }
+
+        .main-sidebar .sidebar-menu li a:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .main-sidebar .sidebar-brand {
+            height: 60px !important;
+            line-height: 60px !important;
+            padding: 0 20px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+
+        .main-sidebar .sidebar-brand a {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: #fff !important;
+            display: flex;
+            align-items: center;
+            gap: 12px;
             letter-spacing: -0.5px;
+            text-decoration: none !important;
+        }
+
+        body.sidebar-collapsed .main-sidebar .sidebar-brand a span {
+            display: none;
+        }
+
+        .main-sidebar .sidebar-menu li.menu-header {
+            padding: 12px 25px 4px 25px !important;
+            color: rgba(255, 255, 255, 0.3) !important;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            margin-top: 8px;
+            transition: var(--transition);
+        }
+
+        body.sidebar-collapsed .main-sidebar .sidebar-menu li.menu-header {
+            opacity: 0;
+            padding: 0 !important;
+            height: 0;
+            margin: 0;
+        }
+
+        .main-sidebar .sidebar-menu li:first-child.menu-header {
+            border-top: none;
+            margin-top: 0;
+        }
+
+        .main-sidebar .sidebar-menu li a {
+            height: 38px !important;
+            margin: 2px 10px !important;
+            border-radius: 8px !important;
+            color: rgba(255, 255, 255, 0.6) !important;
+            font-weight: 500 !important;
+            transition: var(--transition) !important;
+            font-size: 0.82rem !important;
+            display: flex;
+            align-items: center;
+            padding: 0 12px !important;
+            text-decoration: none !important;
+        }
+
+        .main-sidebar .sidebar-menu li a i {
+            width: 24px;
+            font-size: 16px;
+            text-align: center;
+            margin-right: 12px;
+            transition: var(--transition);
+        }
+
+        body.sidebar-collapsed .main-sidebar .sidebar-menu li a i {
+            margin-right: 0;
+        }
+
+        body.sidebar-collapsed .main-sidebar .sidebar-menu li a span {
+            display: none;
+        }
+
+        .main-sidebar .sidebar-menu li a:hover {
+            background: rgba(255, 255, 255, 0.04) !important;
+            color: #fff !important;
+            transform: translateX(4px);
+        }
+
+        .main-sidebar .sidebar-menu li.active a {
+            background: linear-gradient(135deg, #6366f1, #7c3aed);
+
+            box-shadow:
+                0 8px 20px rgba(99, 102, 241, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+
+            transform: translateX(2px);
+        }
+
+        .main-sidebar .sidebar-menu li.active a::before {
+            content: '';
+            position: absolute;
+
+            left: 0;
+            top: 6px;
+            bottom: 6px;
+
+            width: 3px;
+            background: white;
+
+            border-radius: 4px;
+        }
+
+        /* Content Area Refined */
+        .main-content {
+            padding: 25px 30px !important;
+            flex: 1;
+            width: 100% !important;
+            min-height: auto !important;
+            position: relative;
+        }
+
+        /* Dropdown elite styling */
+        .dropdown-menu {
+            background: var(--glass-strong) !important;
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border) !important;
+            border-radius: 18px;
+            box-shadow: var(--glass-shadow) !important;
+            padding: 12px;
+        }
+
+        .dropdown-item {
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 2px;
+        }
+
+        .btn:hover {
+            transform: scale(1.03);
+            filter: brightness(1.1);
+        }
+
+        /* Sidebar Dropdown Behavior - Structural Fix */
+        .main-sidebar .sidebar-menu li.has-dropdown .dropdown-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            padding-left: 10px;
+            list-style: none;
+            padding: 0 0 0 10px !important;
+            margin: 0 !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .main-sidebar .sidebar-menu li.has-dropdown.active .dropdown-menu {
+
+            max-height: 200px;
+            /* adjust if needed */
+        }
+
+        .main-sidebar .sidebar-menu li.has-dropdown a {
+            position: relative;
+        }
+
+        .main-sidebar .sidebar-menu li.has-dropdown a .arrow {
+            position: absolute;
+            right: 20px;
+            font-size: 10px;
+            transition: transform 0.3s ease;
+            opacity: 0.5;
+        }
+
+        .main-sidebar .sidebar-menu li.has-dropdown.active a .arrow {
+            transform: rotate(90deg);
+            opacity: 1;
+        }
+
+        .main-sidebar .sidebar-menu li.has-dropdown .dropdown-menu li a {
+            padding-left: 40px !important;
+            font-size: 0.8rem !important;
+            height: 35px !important;
+            opacity: 0.8;
+            background: transparent !important;
+        }
+
+        .main-sidebar .sidebar-menu li.has-dropdown .dropdown-menu li a:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        .main-footer {
+            padding: 20px 30px !important;
+            background: transparent !important;
+            border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        /* Global Form Styling */
+        input:not([type="submit"]):not([type="button"]),
+        select,
+        textarea {
+            background: rgba(255, 255, 255, 0.5) !important;
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 12px !important;
+            transition: var(--transition) !important;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            background: rgba(255, 255, 255, 0.8) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15) !important;
+            outline: none;
+        }
+
+
+        @media (max-width: 1024px) {
+            .main-footer {
+                padding-left: 30px !important;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .main-sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .main-sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Prevent content jump when dropdown opens */
+        .sidebar-menu li.dropdown {
+            transition: all 0.3s ease;
         }
     </style>
 
@@ -128,7 +469,7 @@
     <link rel="stylesheet" href="/static/Admin/assets/css/components.min.css">
     <link rel="stylesheet" href="/static/full-window-ui.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    
+
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
 </head>
@@ -136,32 +477,120 @@
 <body class="layout-4">
 
     <div id="app">
-        <div class="main-wrapper main-wrapper-1">
-            <div class="navbar-bg"></div>
+        <!-- Sidebar Elite Architecture -->
+        <div class="main-sidebar">
+            <aside id="sidebar-wrapper">
+                <div class="sidebar-brand">
+                    <a href="{{url_for('dashboard')}}">
+                        <i class="fas fa-rocket"></i>
+                        <span>AttendX</span>
+                    </a>
+                </div>
 
+                <ul class="sidebar-menu">
+                    <li class="menu-header">Overview</li>
+                    <li class="{{ 'active' if request.path == url_for('dashboard') else '' }}">
+                        <a href="{{url_for('dashboard')}}" class="nav-link">
+                            <i class="fas fa-grid-2"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-header">People</li>
+                    <li class="has-dropdown {{ 'active' if 'user' in request.path else '' }}">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-user-graduate"></i>
+                            <span>Students</span>
+                            <i class="fas fa-chevron-right arrow"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="nav-link" href="{{url_for('add_user')}}">Register Student</a></li>
+                            <li><a class="nav-link" href="{{url_for('view_user')}}">Student Directory</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-dropdown {{ 'active' if 'faculty' in request.path else '' }}">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-user-tie"></i>
+                            <span>Faculty</span>
+                            <i class="fas fa-chevron-right arrow"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="nav-link" href="{{url_for('add_faculty')}}">Add Faculty</a></li>
+                            <li><a class="nav-link" href="{{url_for('view_faculty')}}">Faculty List</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="menu-header">Academic</li>
+                    <li class="has-dropdown {{ 'active' if 'department' in request.path else '' }}">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-building-columns"></i>
+                            <span>Departments</span>
+                            <i class="fas fa-chevron-right arrow"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="nav-link" href="{{url_for('add_department')}}">New Department</a></li>
+                            <li><a class="nav-link" href="{{url_for('view_department')}}">Manage All</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-dropdown {{ 'active' if 'class' in request.path else '' }}">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-door-open"></i>
+                            <span>Classes</span>
+                            <i class="fas fa-chevron-right arrow"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="nav-link" href="{{url_for('add_class')}}">Schedule Class</a></li>
+                            <li><a class="nav-link" href="{{url_for('view_class')}}">Class Schedule</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="menu-header">Intelligence</li>
+                    <li class="{{ 'active' if request.path == url_for('report') else '' }}">
+                        <a href="{{url_for('report')}}" class="nav-link">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+
+                    <li class="mt-4">
+                        <a href="{{url_for('logout')}}" class="nav-link text-danger">
+                            <i class="fas fa-power-off"></i>
+                            <span>Sign Out</span>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+        </div>
+        <div class="main-content-wrapper">
             <nav class="navbar navbar-expand-lg main-navbar">
                 <form class="form-inline mr-auto">
-                    
+                    <ul class="navbar-nav mr-3">
+                        <li><a href="#" class="nav-link nav-link-lg" id="sidebar-toggle"
+                                style="color: var(--text-main) !important;"><i class="fas fa-bars"></i></a></li>
+                    </ul>
                 </form>
 
                 <ul class="navbar-nav navbar-right">
-
                     <li class="dropdown">
                         <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
-
                             <img alt="image"
-                                src="https://ui-avatars.com/api/?name={{session['admin_name']}}&background=6c5ce7&color=fff"
-                                class="rounded-circle mr-1">
+                                src="https://ui-avatars.com/api/?name={{session['admin_name']}}&background=6c5ce7&color=fff&bold=true"
+                                class="rounded-circle">
                             {% if session['admin_name'] %}
                             <div class="d-sm-none d-lg-inline-block">Hi, {{ session['admin_name'] }}</div>
                             {% else %}
                             <div class="d-sm-none d-lg-inline-block">Hi, Admin</div>
                             {% endif %}
                         </a>
-                        <div class="dropdown-menu dropdown-menu-right">
+                        <div class="dropdown-menu dropdown-menu-right animate__animated animate__fadeIn">
+                            <div class="dropdown-title">Logged in as Admin</div>
                             <a href="#" class="dropdown-item has-icon">
                                 <i class="far fa-user"></i> Profile
                             </a>
+                            <a href="#" class="dropdown-item has-icon">
+                                <i class="fas fa-cog"></i> Settings
+                            </a>
+                            <div class="dropdown-divider"></div>
                             <a href="{{ url_for('logout') }}" class="dropdown-item has-icon text-danger">
                                 <i class="fas fa-sign-out-alt"></i> Logout
                             </a>
@@ -170,91 +599,17 @@
                 </ul>
             </nav>
 
-            <div class="main-sidebar sidebar-style-3">
-                <aside id="sidebar-wrapper">
-                    <div class="sidebar-brand">
-                        <a>
-                            <i class="fas fa-layer-group"></i> AttendX
-                        </a>
-                    </div>
+            {% block content %} {% endblock %}
 
-                    <ul class="sidebar-menu">
-                        <li class="menu-header">Overview</li>
-                        <li class="active">
-                            <a href="{{url_for('dashboard')}}" class="nav-link"><i
-                                    class="fas fa-home"></i><span>Dashboard</span></a>
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-users"></i> <span>Student
-                                    Management</span></a>
-                            <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{url_for('add_user')}}">Add Student</a></li>
-                                <li><a class="nav-link" href="{{url_for('view_user')}}">View Student</a></li>
-                            </ul>
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-database"></i> <span>Manage Department</span></a>
-                            <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{url_for('add_department')}}">Add Department</a></li>
-                                <li><a class="nav-link" href="{{url_for('view_department')}}">View Department</a></li>
-                            </ul>
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-user-tie"></i> <span>Manage Faculty</span></a>
-                            <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{url_for('add_faculty')}}">Add Faculty</a></li>
-                                <li><a class="nav-link" href="{{url_for('view_faculty')}}">View Faculty</a></li>
-                            </ul>
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-graduation-cap"></i> <span>Class Management</span></a>
-                            <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{url_for('add_class')}}">Add Class</a></li>
-                                <li><a class="nav-link" href="{{url_for('view_class')}}">View Class</a></li>
-                            </ul>
-
-                        </li>
-                        <li>
-                            <a href="{{url_for('report')}}" class="nav-link"><i class="fas fa-file-alt"></i>
-                                <span>Reports</span></a>
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-cog"></i> <span>System
-                                    Settings</span></a>
-                            <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{url_for('attendance')}}">Attendance Rules</a></li>
-                                <li><a class="nav-link" href="{{url_for('settings')}}">Allowed Time Window</a></li>
-                                <li><a class="nav-link" href="{{url_for('gps_range')}}">Gps Range</a></li>
-                                <li><a class="nav-link" href="{{url_for('camera_setting')}}">Camera Settings</a></li>
-                            </ul>
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="nav-link has-dropdown"><i class="fas fa-shield-alt"></i> <span>Security &
-                                    maintenance</span></a>
-                            <ul class="dropdown-menu">
-                                <li><a class="nav-link" href="{{url_for('backup_database')}}">Backup Database</a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="{{url_for('logout')}}" class="nav-link"><i class="fas fa-sign-out-alt"></i>
-                                <span>Logout</span></a>
-                        </li>
-                    </ul>
-                </aside>
-            </div>
-
-
-        {% block content %} {% endblock %}
-        <!-- Start app Footer part -->
-        <footer class="main-footer">
-            <div class="footer-left">
-                &copy; AttendX. All rights reserved.
-            </div>
-            <div class="footer-right">
-                Built for smart attendance
-            </div>
-        </footer>
-    </div>
+            <footer class="main-footer">
+                <div class="footer-left">
+                    &copy; AttendX. All rights reserved.
+                </div>
+                <div class="footer-right">
+                    Built for smart attendance
+                </div>
+            </footer>
+        </div>
     </div>
 
 
@@ -275,8 +630,48 @@
     <script src="/static/Admin/js/page/index.js"></script>
 
     <!-- Template JS File -->
-    <script src="/static/Admin/js/scripts.js"></script>
-    <script src="/static/Admin/js/custom.js"></script>
+    <script>
+        // Collapsible Sidebar Logic
+        document.addEventListener('DOMContentLoaded', function () {
+            // Sidebar Toggle
+            const toggle = document.getElementById('sidebar-toggle');
+            if (toggle) {
+                toggle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.body.classList.toggle('sidebar-collapsed');
+                });
+            }
+
+            // Dropdown Toggle (Structural Fix)
+            const dropdownLinks = document.querySelectorAll('.has-dropdown > a');
+            dropdownLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+
+                    // Toggle current
+                    parent.classList.toggle('active');
+
+                    // Close other dropdowns
+                    document.querySelectorAll('.has-dropdown').forEach(item => {
+                        if (item !== parent) {
+                            item.classList.remove('active');
+                        }
+                    });
+                });
+            });
+        });
+
+        window.addEventListener('scroll', function () {
+            const nav = document.querySelector('.main-navbar');
+            if (window.scrollY > 10) {
+                nav.style.background = "rgba(255,255,255,0.8)";
+            } else {
+                nav.style.background = "rgba(255,255,255,0.65)";
+            }
+        });
+
+    </script>
 </body>
 
 </html>

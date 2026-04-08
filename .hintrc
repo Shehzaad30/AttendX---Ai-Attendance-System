@@ -28,7 +28,8 @@
           "-webkit-text-size-adjust",
           "-webkit-text-decoration-skip",
           "-webkit-overflow-scrolling",
-          "backdrop-filter"
+          "backdrop-filter",
+          "user-select"
         ]
       }
     ],

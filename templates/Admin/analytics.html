@@ -2,135 +2,237 @@
 {% block content %}
 
 <style>
-    body {
-        background-color: #f4f4f6;
+    /* Elite Analytics Patterns */
+    .stat-card-elite {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        padding: 25px;
+        box-shadow: var(--shadow-premium);
+        border: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        transition: var(--transition);
+        margin-bottom: 25px;
     }
-    .main-content {
-        padding: 50px;
-        margin-left: -150px;
-        position: fixed;
-        width: 100%;
+
+    .stat-card-elite:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
     }
-    .card {
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    .stat-icon-box {
+        width: 60px;
+        height: 60px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-right: 20px;
     }
-    .card-header {
-        background-color: #007bff;
-        color: white;
-        font-weight: bold;
-        border-bottom: none;
+
+    .stat-data h4 {
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 5px;
     }
-    .card-body {
-        padding: 20px;
+
+    .stat-data .value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text-main);
+        letter-spacing: -1px;
     }
+
+    .chart-card-elite {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        padding: 30px;
+        box-shadow: var(--shadow-premium);
+        border: 1px solid rgba(0,0,0,0.05);
+        height: 100%;
+    }
+
+    .chart-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .chart-card-header h3 {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin: 0;
+    }
+
+    .header-icon-box {
+        width: 50px;
+        height: 50px;
+        background: #fff;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: var(--primary);
+        box-shadow: var(--shadow-premium);
+        margin-right: 20px;
+    }
+
+    .breadcrumb-elite {
+        display: flex;
+        gap: 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .breadcrumb-elite a { color: var(--primary); text-decoration: none; }
 </style>
+
 <div class="main-content">
     <section class="section">
-
-        <div class="main-content">
-            <section class="section">
-                <div class="section-header">
-                    <div class="section-header-breadcrumb">
-                        <div class="breadcrumb-item active"><a href="">Dashboard</a></div>
-                        <div class="breadcrumb-item"><a href="#">Forms</a></div>
-                        <div class="breadcrumb-item">Analytics</div>
-                    </div>
+        <!-- Page Header -->
+        <div class="mb-5">
+            <div class="breadcrumb-elite">
+                <a href="{{url_for('dashboard')}}">DASHBOARD</a> 
+                <span>/</span> 
+                <span class="text-main">ANALYTICS ENGINE</span>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="header-icon-box">
+                    <i class="fas fa-microchip"></i>
                 </div>
-
-                <div class="section-body">
-
-                    <!-- Statistics Cards -->
-                    <div class="row">
-
-                        <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="card card-statistic-1">
-                                <div class="card-icon bg-primary">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                                <div class="card-wrap">
-                                    <div class="card-header">
-                                        <h4>Total Users</h4>
-                                    </div>
-                                    <div class="card-body">320</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="card card-statistic-1">
-                                <div class="card-icon bg-success">
-                                    <i class="fas fa-user-check"></i>
-                                </div>
-                                <div class="card-wrap">
-                                    <div class="card-header">
-                                        <h4>Present Today</h4>
-                                    </div>
-                                    <div class="card-body">278</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="card card-statistic-1">
-                                <div class="card-icon bg-danger">
-                                    <i class="fas fa-user-times"></i>
-                                </div>
-                                <div class="card-wrap">
-                                    <div class="card-header">
-                                        <h4>Absent Today</h4>
-                                    </div>
-                                    <div class="card-body">42</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="card card-statistic-1">
-                                <div class="card-icon bg-warning">
-                                    <i class="fas fa-percentage"></i>
-                                </div>
-                                <div class="card-wrap">
-                                    <div class="card-header">
-                                        <h4>Attendance %</h4>
-                                    </div>
-                                    <div class="card-body">86.9%</div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- Charts -->
-                    <div class="row">
-
-                        <!-- Attendance Trend -->
-                        <div class="col-lg-8">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h4>Weekly Attendance Trend</h4>
-                                </div>
-                                <div class="card-body">
-                                    <canvas id="attendanceChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Present vs Absent -->
-                        <div class="col-lg-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h4>Today Attendance</h4>
-                                </div>
-                                <div class="card-body">
-                                    <canvas id="attendancePie"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
+                <div>
+                    <h1 class="text-main font-weight-800 mb-0" style="font-size: 1.8rem; letter-spacing: -1px;">Intelligence Nexus</h1>
+                    <p class="text-muted mb-0 font-weight-500">Real-time telemetry and pattern recognition for <span class="text-primary font-weight-700">AttendX</span></p>
                 </div>
-            </section>
+            </div>
         </div>
-        {% endblock %}
+
+        <!-- Statistics Grid -->
+        <div class="row">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card-elite">
+                    <div class="stat-icon-box" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+                        <i class="fas fa-users-medical"></i>
+                    </div>
+                    <div class="stat-data">
+                        <h4>Aggregate Identities</h4>
+                        <div class="value">320</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card-elite">
+                    <div class="stat-icon-box" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                        <i class="fas fa-signal-stream"></i>
+                    </div>
+                    <div class="stat-data">
+                        <h4>Active Presence</h4>
+                        <div class="value">278</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card-elite">
+                    <div class="stat-icon-box" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                        <i class="fas fa-user-slash"></i>
+                    </div>
+                    <div class="stat-data">
+                        <h4>Divergent Nodes</h4>
+                        <div class="value">42</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card-elite">
+                    <div class="stat-icon-box" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                        <i class="fas fa-chart-line-up"></i>
+                    </div>
+                    <div class="stat-data">
+                        <h4>Stability Index</h4>
+                        <div class="value">86.9%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytical Charts -->
+        <div class="row mt-4">
+            <div class="col-lg-8">
+                <div class="chart-card-elite">
+                    <div class="chart-card-header">
+                        <h3>Temporal Attendance Flux</h3>
+                        <div class="badge-soft-primary px-3 py-1" style="border-radius: 10px; font-weight: 700;">LIVE FEED</div>
+                    </div>
+                    <canvas id="attendanceChart" height="250"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-card-elite">
+                    <div class="chart-card-header">
+                        <h3>Domain Distribution</h3>
+                    </div>
+                    <canvas id="attendancePie" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Chart initialization scripts would go here, assuming they are managed via external JS or existing template logic -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Placeholder chart data - actual data should be injected via backend
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctxLine = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                datasets: [{
+                    label: 'Attendance',
+                    data: [85, 88, 86, 92, 89, 87],
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        const ctxPie = document.getElementById('attendancePie').getContext('2d');
+        new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: ['Present', 'Absent'],
+                datasets: [{
+                    data: [278, 42],
+                    backgroundColor: ['#10b981', '#ef4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '70%',
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

@@ -1,60 +1,190 @@
 {% extends "Admin/layout.html" %}
 {% block content %}
+
+<style>
+    .elite-form-card {
+        background: #f9fafb;
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow-premium);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .elite-card-header {
+        padding: 20px 25px;
+        background: rgba(0, 0, 0, 0.02);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .elite-card-header h3 {
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin: 0;
+        color: var(--text-main);
+        letter-spacing: -0.5px;
+    }
+
+    .elite-card-body {
+        padding: 30px;
+    }
+
+    .form-group-elite label {
+        display: block;
+        font-weight: 700;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+    }
+
+    .form-control-elite {
+        width: 100%;
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 12px 18px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--text-main);
+        transition: var(--transition);
+        margin-bottom: 25px;
+    }
+
+    .form-control-elite:focus {
+        border-color: #f59e0b;
+        box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+        outline: none;
+    }
+
+    .submit-btn-elite {
+        background: #1e293b;
+        color: #fff;
+        border: none;
+        border-radius: 14px;
+        padding: 16px;
+        width: 100%;
+        font-weight: 800;
+        font-size: 1rem;
+        letter-spacing: 0.5px;
+        transition: var(--transition);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        margin-top: 10px;
+    }
+
+    .submit-btn-elite:hover {
+        background: #f59e0b;
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 15px 35px rgba(245, 158, 11, 0.2);
+    }
+
+    .elite-header-box {
+        width: 50px;
+        height: 50px;
+        background: #fff;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: #f59e0b;
+        box-shadow: var(--shadow-premium);
+        margin-right: 20px;
+    }
+
+    .breadcrumb-elite {
+        display: flex;
+        gap: 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .breadcrumb-elite a { color: var(--primary); text-decoration: none; }
+</style>
+
 <div class="main-content">
     <section class="section">
-
-        <div class="section-header">
-            <h1>Add Faculty</h1>
+        <!-- Page Header -->
+        <div class="mb-5">
+            <div class="breadcrumb-elite">
+                <a href="{{url_for('dashboard')}}">DASHBOARD</a> 
+                <span>/</span> 
+                <a href="{{url_for('view_faculty')}}">FACULTY</a> 
+                <span>/</span> 
+                <span class="text-main">DEPLOAYMENT</span>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="elite-header-box">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div>
+                    <h1 class="text-main font-weight-800 mb-0" style="font-size: 1.8rem; letter-spacing: -1px;">Academic Provisioning</h1>
+                    <p class="text-muted mb-0 font-weight-500">Establishing new administrative nodes for the <span class="text-warning font-weight-700">AttendX</span> mesh</p>
+                </div>
+            </div>
         </div>
 
         <div class="row">
-            <div class="col-lg-12 col-md-8 col-sm-12">
-                <div class="card-student">
-                    <div class="card-body">
-
-                        <form action="{{url_for('insert_faculty')}}" method="post" width="100%">
-                            <div class="form-group">
-                                <label>Faculty Name</label>
-                                <input type="text" name="Faculty_name" class="form-control"
-                                    placeholder="Enter faculty name" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Faculty Email</label>
-                                <input type="email" name="Faculty_email" class="form-control"
-                                    placeholder="Enter faculty email" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Faculty Password</label>
-                                <input type="password" name="Password" class="form-control"
-                                    placeholder="Enter faculty password" required minlength="6">
-                            </div>
-                            <div class="form-group">
-                                <label>Faculty Department</label>
-                                <select class="form-control" name="Department_id" required="">
-                                    <option>Select Department</option>
-                                    {% for department in departments %}
-                                    <option value="{{ department[0] }}">{{ department[1] }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Faculty Contact Number</label>
-                                <input type="text" name="contact" class="form-control"
-                                    placeholder="Enter faculty phone number" required pattern="[0-9]{10}"
-                                    title="Please enter a valid 10-digit phone number">
-                            </div>
-                            <div class="form-group">
-                                <label>Faculty Image</label>
-                                <input type="file" name="Faculty_image" class="form-control-file">
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Add Faculty
-                            </button>
-                        </form>
+            <div class="col-lg-8 offset-lg-2">
+                <div class="elite-form-card">
+                    <div class="elite-card-header">
+                        <i class="fas fa-shield-alt text-warning"></i>
+                        <h3>Faculty Credentials</h3>
                     </div>
+                    <form action="{{url_for('insert_faculty')}}" method="post">
+                        <div class="elite-card-body">
+                            <div class="row">
+                                <div class="col-md-6 form-group-elite">
+                                    <label>Professional Name</label>
+                                    <input type="text" name="Faculty_name" class="form-control-elite" placeholder="Dr. Sarah Connor" required>
+                                </div>
+                                <div class="col-md-6 form-group-elite">
+                                    <label>Institutional Email</label>
+                                    <input type="email" name="Faculty_email" class="form-control-elite" placeholder="sarah@attendx.ai" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 form-group-elite">
+                                    <label>Security Key</label>
+                                    <input type="password" name="Password" class="form-control-elite" placeholder="••••••••" required minlength="6">
+                                </div>
+                                <div class="col-md-6 form-group-elite">
+                                    <label>Domain Allocation</label>
+                                    <select class="form-control-elite" name="Department_id" required>
+                                        <option value="">Select Domain</option>
+                                        {% for department in departments %}
+                                        <option value="{{ department[0] }}">{{ department[1] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 form-group-elite">
+                                    <label>Contact Node</label>
+                                    <input type="text" name="contact" class="form-control-elite" placeholder="+91 XXXXXXXXXX" required pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number">
+                                </div>
+                                <div class="col-md-6 form-group-elite">
+                                    <label>Identity Image</label>
+                                    <input type="file" name="Faculty_image" class="form-control-elite">
+                                </div>
+                            </div>
+                            <button type="submit" class="submit-btn-elite">
+                                <i class="fas fa-user-shield mr-2"></i> INITIALIZE DEPLOYMENT
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </section>
 </div>
+
 {% endblock %}

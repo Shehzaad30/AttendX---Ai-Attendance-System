@@ -1,0 +1,272 @@
+{% extends "Faculty/layout.html" %}
+{% block content %}
+
+<style>
+    :root {
+        --faculty-gradient: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+        --card-bg: #ffffff;
+        --card-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
+    }
+
+    .page-header-modern {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-header-modern h1 {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 1.75rem;
+        color: var(--text-dark);
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
+
+    .page-header-modern p {
+        color: var(--text-muted);
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .card-modern {
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        background: var(--card-bg);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .card-modern .card-header {
+        background: transparent;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .card-modern .card-header h5 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: var(--text-dark);
+    }
+    
+    .card-modern .card-body {
+        padding: 1.5rem;
+    }
+
+    .table-modern {
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+    }
+
+    .table-modern thead th {
+        border-top: none;
+        border-bottom: 2px solid #e2e8f0;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 1rem 1.5rem;
+        background: #f8fafc;
+    }
+
+    .table-modern thead th:first-child { border-top-left-radius: 12px; }
+    .table-modern thead th:last-child { border-top-right-radius: 12px; }
+
+    .table-modern tbody td {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+        font-size: 0.95rem;
+    }
+
+    .table-modern tbody tr:last-child td { border-bottom: none; }
+
+    .table-modern tbody tr {
+        transition: all 0.2s ease;
+    }
+
+    .table-modern tbody tr:hover {
+        background-color: #f8fafc;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    }
+
+    .status-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .status-badge.present {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+
+    .status-badge.absent {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    .status-badge.late {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+    }
+
+    .student-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .info-item .label {
+        color: #64748b;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+
+    .info-item .value {
+        color: #1e293b;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .dashboard-bg-shape {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 300px;
+        background: linear-gradient(180deg, rgba(14, 165, 233, 0.05) 0%, rgba(248, 250, 252, 0) 100%);
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .btn-back-modern {
+        background: white;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0.6rem 1.25rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-back-modern:hover {
+        background: #f8fafc;
+        color: #1e293b;
+        transform: translateY(-1px);
+        text-decoration: none;
+        border-color: #cbd5e1;
+    }
+
+    .section { position: relative; z-index: 1; }
+</style>
+
+<div class="main-content">
+    <div class="dashboard-bg-shape"></div>
+    <section class="section">
+
+        <div class="page-header-modern">
+            <div>
+                <h1>Student Attendance</h1>
+                <p>Detailed view of individual student attendance records.</p>
+            </div>
+            <div>
+                <a href="{{ url_for('faculty_student_report') }}" class="btn-back-modern">
+                    <i class="fas fa-arrow-left"></i> Back to Report
+                </a>
+            </div>
+        </div>
+
+        <div class="card-modern">
+            {% if data and data|length > 0 %}
+            <div class="card-body">
+                <div class="student-info-grid">
+                    <div class="info-item">
+                        <span class="label">Student Name</span>
+                        <span class="value">{{ data[0][0] }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Enrollment No</span>
+                        <span class="value">{{ data[0][1] }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Department</span>
+                        <span class="value">{{ data[0][2] }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Semester</span>
+                        <span class="value">Sem {{ data[0][3] }}</span>
+                    </div>
+                </div>
+
+                <div class="table-responsive mt-2">
+                    <table class="table-modern">
+                        <thead>
+                            <tr>
+                                <th width="10%" class="text-center">#</th>
+                                <th width="45%">Date</th>
+                                <th width="45%" class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in data %}
+                            <tr>
+                                <td class="text-center text-muted font-weight-bold">{{ loop.index }}</td>
+                                <td class="font-weight-bold text-dark"><i class="far fa-calendar-alt text-muted mr-2"></i>{{ record[4] }}</td>
+                                <td class="text-center">
+                                    {% if record[5].lower() == 'present' %}
+                                        <span class="status-badge present"><i class="fas fa-check-circle mr-1"></i>Present</span>
+                                    {% elif record[5].lower() == 'absent' %}
+                                        <span class="status-badge absent"><i class="fas fa-times-circle mr-1"></i>Absent</span>
+                                    {% else %}
+                                        <span class="status-badge late">{{ record[5] }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <div class="p-5 text-center">
+                <div style="width: 60px; height: 60px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: #94a3b8; font-size: 1.5rem;">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h6 style="color: #475569; font-weight: 600;">No Attendance Records</h6>
+                <p class="text-muted small mb-0">This student does not have any attendance records yet.</p>
+            </div>
+            {% endif %}
+        </div>
+
+    </section>
+</div>
+
+{% endblock %}
