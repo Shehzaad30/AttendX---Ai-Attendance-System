@@ -55,9 +55,12 @@ def dashboard():
     cursor.execute(query2)
     attenddata = cursor.fetchone()[0]
     query3 = "SELECT COUNT(*) FROM faculty_data"
+    
     cursor.execute(query3)
     facultydata = cursor.fetchone()[0]
+    
     return render_template("Admin/dashboard.html", studata=studata, deptdata=deptdata, attenddata=attenddata, facultydata=facultydata)
+
 
 @app.route("/add_department")
 def add_department():
@@ -122,12 +125,6 @@ def edit_department_process(Department_id):
     cursor.close()
     return redirect(url_for('view_department'))
 
-@app.route("/analytics")
-def analytics():
-    if 'admin_id' not in session:
-        return redirect(url_for('login'))
-    
-    return render_template("Admin/analytics.html")
 
 @app.route("/")
 def login():
@@ -147,7 +144,41 @@ def add_user():
 
     return render_template("Admin/add_user.html",departments=departments)
 
+@app.route("/api/analytics")
+def api_analytics():
+    if 'admin_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
 
+    cursor = conn.cursor()
+
+    days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+    labels = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
+    values = []
+
+    for day in days:
+        query = """
+        SELECT 
+            COUNT(*) as total,
+            SUM(CASE WHEN status='Present' THEN 1 ELSE 0 END) as present
+        FROM attendance
+        WHERE DAYNAME(date) = %s
+        """
+        cursor.execute(query, (day,))
+        row = cursor.fetchone()
+
+        total = row[0]
+        present = row[1] if row[1] else 0
+
+        percent = 0
+        if total > 0:
+            percent = round((present / total) * 100)
+
+        values.append(percent)
+
+    return jsonify({
+        "labels": labels,
+        "values": values
+    })
 
 @app.route("/studentprocess", methods=["POST", "GET"])
 def studentprocess():
@@ -190,6 +221,7 @@ def studentprocess():
                 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
                 file.save(filepath)
+                db_path = f"static/student_img_upload/{filename}"
 
                 # --- NEW FACE VALIDATION LOGIC ---
                 try:
@@ -228,7 +260,7 @@ def studentprocess():
             Email,
             password,
             contact,
-            filepath       
+            db_path     
                 
         )
 
@@ -421,14 +453,12 @@ def insert_class():
     Department_id = request.form['Department_id']
     semester = request.form['semester']
     room_no = request.form['room_no']
-    latitude = request.form['latitude']
-    longitude = request.form['longitude']
     date = request.form['date']
     start_time = request.form['start_time']
     end_time = request.form['end_time']
     cursor = conn.cursor()
-    query = "INSERT INTO class_data(class_name, Faculty_id, Department_id, semester, room_no, latitude, longitude,date, start_time, end_time) VALUES (%s, %s, %s, %s, %s,%s,%s, %s,%s,%s)"
-    cursor.execute(query, (class_name, Faculty_id, Department_id, semester, room_no, latitude, longitude, date, start_time, end_time))
+    query = "INSERT INTO class_data(class_name, Faculty_id, Department_id, semester, room_no, start_time, end_time) VALUES (%s, %s, %s, %s,%s,%s,%s)"
+    cursor.execute(query, (class_name, Faculty_id, Department_id, semester, room_no, start_time, end_time))
     conn.commit()
     cursor.close()
     return redirect(url_for('view_class'))
@@ -486,15 +516,13 @@ def edit_class_process(class_id):
     Department_id = request.form['Department_id']
     semester = request.form['semester']
     room_no = request.form['room_no']
-    latitude = request.form['latitude']
-    longitude = request.form['longitude']
     date = request.form['date']
     start_time = request.form['start_time']
     end_time = request.form['end_time']
 
     cursor = conn.cursor()
-    query = "UPDATE class_data SET class_name=%s, Faculty_id=%s, Department_id=%s, semester=%s, room_no=%s, latitude=%s, longitude=%s, date=%s, start_time=%s, end_time=%s WHERE class_id=%s"
-    val = (class_name, Faculty_id, Department_id, semester, room_no, latitude, longitude,date, start_time, end_time,class_id)
+    query = "UPDATE class_data SET class_name=%s, Faculty_id=%s, Department_id=%s, semester=%s, room_no=%s, date=%s, start_time=%s, end_time=%s WHERE class_id=%s"
+    val = (class_name, Faculty_id, Department_id, semester, room_no, date, start_time, end_time, class_id)
     cursor.execute(query, val)
     conn.commit()
     cursor.close()
@@ -961,9 +989,10 @@ def export_pdf_faculty(Student_id):
 
     return response
 
-@app.route("/export_all_pdf")
+@app.route("/export_all_pdf_faculty")
 def export_all_pdf_faculty():
     if 'faculty_id' not in session:
+        print("Unauthorized access attempt to export_all_pdf")
         return redirect(url_for('faculty_login'))
 
     cursor = conn.cursor()
@@ -980,7 +1009,7 @@ def export_all_pdf_faculty():
     cursor.execute(query)
     data = cursor.fetchall()
     cursor.close()
-
+    print("something")
     if not data:
         flash("No student records found to export.", "warning")
         return redirect(url_for('faculty_student_report'))
@@ -1446,149 +1475,223 @@ def mark_attendance(class_id):
         class_id=class_id
     )
 
-def calculate_distance(lat1, lon1, lat2, lon2):
+# @app.route("/mark_attendanceprocess", methods=["POST"])
+# def mark_attendanceprocess():
 
-    R = 6371000
 
-    lat1 = math.radians(float(lat1))
-    lon1 = math.radians(float(lon1))
-    lat2 = math.radians(float(lat2))
-    lon2 = math.radians(float(lon2))
+#     class_id = request.form.get('class_id')
+#     student_id = session.get('Student_id')
+#     if not student_id:
+#         return redirect(url_for('student_login'))
+#     if not class_id:
+#         return "Invalid class ID"
 
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
 
-    a = math.sin(dlat/2)**2 + math.cos(lat1)*math.cos(lat2)*math.sin(dlon/2)**2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+#     image_data = request.form['image_data']
+#     class_id = int(class_id)
+#     cursor = conn.cursor(pymysql.cursors.DictCursor)
+    
 
-    distance = R * c
+#     image_data = image_data.split(",")[1]
+#     image_bytes = base64.b64decode(image_data)
+#     np_arr = np.frombuffer(image_bytes, np.uint8)
+#     frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
-    return distance
+#     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+#     unknown_encodings = face_recognition.face_encodings(rgb_frame)
+
+#     if len(unknown_encodings) == 0:
+#         msg3="No face detected in the image. Please try again."
+#         return render_template("Student/student_dashboard.html", msg3=msg3)
+#         #return redirect(url_for('mark_attendance', class_id=class_id))
+
+#     unknown_encoding = unknown_encodings[0]
+#     if len(unknown_encodings) > 1:
+#         msg4="Multiple faces detected! Please ensure only you are in the frame."
+#         return render_template("Student/student_dashboard.html", msg4=msg4)
+#         #return redirect(url_for('mark_attendance', class_id=class_id))
+
+#     cursor.execute(
+#         "SELECT Student_id, img_of_student FROM student_data WHERE Student_id=%s",
+#         (student_id,)
+#     )
+
+#     student = cursor.fetchone()
+
+#     if not student:
+#         msg5="Student record not found in database."
+#         return render_template("Student/student_dashboard.html", msg5=msg5)
+
+#     # img_filename = student['img_of_student']
+#     # img_path = os.path.join("static/student_img_upload", img_filename)
+#     img_filename = student['img_of_student']
+#     img_path = os.path.join("static/student_img_upload", img_filename)
+
+#     if not os.path.exists(img_path):
+#         msg6="Your registration image is missing. Please contact admin."
+#         return render_template("Student/student_dashboard.html", msg6=msg6)
+
+#     known_image = face_recognition.load_image_file(img_path)
+#     known_encodings = face_recognition.face_encodings(known_image)
+
+#     if len(known_encodings) == 0:
+#         msg7="No face was found in your stored registration image."
+#         return render_template("Student/student_dashboard.html", msg7=msg7)
+#         return redirect(url_for('student_dashboard'))
+
+#     known_encoding = known_encodings[0]
+
+
+#     distance = face_recognition.face_distance([known_encoding], unknown_encoding)
+#     # Relaxed tolerance from 0.5 to 0.55 to reduce false rejections due to lighting
+#     if distance[0] < 0.55:
+#         today = datetime.now().date()
+
+#         cursor.execute("""
+#         SELECT *
+#         FROM attendance
+#         WHERE Student_id=%s AND date=%s AND class_id=%s
+#         """, (student['Student_id'], today, class_id))
+
+#         already = cursor.fetchone()
+
+#         if already:
+#             #flash("Attendance has already been marked for this class today.", "warning")
+#             msg='Attendance has already been marked for this class today.'
+#             #return redirect(url_for('student_dashboard',msg=msg))
+#             return render_template("Student/student_dashboard.html", msg=msg)
+
+#         cursor.execute("""
+#         INSERT INTO attendance (Student_id, class_id, date, status)
+#         VALUES (%s, %s, %s, %s)
+#         """, (student['Student_id'], class_id, today, "Present"))
+#         conn.commit()
+#         print("hi")
+#         #flash("Attendance Marked Successfully!", "success")
+#         msg1='Attendance Marked Successfully!'
+#         return render_template("Student/student_dashboard.html", msg1=msg1)
+    
+#     msg2="Face does not match the registered user. Attendance denied."
+#     return render_template("Student/student_dashboard.html", msg2=msg2)
+
+#     return redirect(url_for('mark_attendance', class_id=class_id))
+
+
 
 @app.route("/mark_attendanceprocess", methods=["POST"])
 def mark_attendanceprocess():
 
     class_id = request.form.get('class_id')
     student_id = session.get('Student_id')
+
     if not student_id:
         return redirect(url_for('student_login'))
+
     if not class_id:
-        print("ERROR: class_id is missing from form")
-        print("Full form data:", request.form)
         return "Invalid class ID"
 
-
-    image_data = request.form['image_data']
     class_id = int(class_id)
-    # student_lat = request.form['latitude']
-    # student_lon = request.form['longitude']
-    # print("Received class_id:", class_id)
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    # print("Class ID:", class_id)
 
-    # cursor.execute("""
-    # SELECT latitude, longitude
-    # FROM class_data
-    # WHERE class_id=%s
-    # """,(class_id,))
+    try:
+        # ---------- CAPTURE IMAGE ----------
+        image_data = request.form['image_data']
+        image_data = image_data.split(",")[1]
+        image_bytes = base64.b64decode(image_data)
+        np_arr = np.frombuffer(image_bytes, np.uint8)
+        frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
-    # class_location = cursor.fetchone()
-    # print("Class location result:", class_location)
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    # if not class_location:
-    #     return "Class location not found"
+        # Improve accuracy
+        rgb_frame = cv2.resize(rgb_frame, (0, 0), fx=0.5, fy=0.5)
 
-    # class_lat = class_location['latitude']
-    # class_lon = class_location['longitude']
+        unknown_encodings = face_recognition.face_encodings(rgb_frame)
 
+        if len(unknown_encodings) == 0:
+            msg3 = "No face detected in the image. Please try again."
+            return render_template("Student/student_dashboard.html", msg3=msg3)
 
-    # distance = calculate_distance(student_lat, student_lon, class_lat, class_lon)
-    # print(request.form)
-    # if distance > 300:
-    #     return "You are not in classroom location"
+        if len(unknown_encodings) > 1:
+            msg4 = "Multiple faces detected! Please ensure only you are in the frame."
+            return render_template("Student/student_dashboard.html", msg4=msg4)
 
-    image_data = image_data.split(",")[1]
-    image_bytes = base64.b64decode(image_data)
-    np_arr = np.frombuffer(image_bytes, np.uint8)
-    frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+        unknown_encoding = unknown_encodings[0]
 
-    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # ---------- FETCH STUDENT ----------
+        cursor.execute(
+            "SELECT Student_id, img_of_student FROM student_data WHERE Student_id=%s",
+            (student_id,)
+        )
+        student = cursor.fetchone()
 
-    unknown_encodings = face_recognition.face_encodings(rgb_frame)
+        if not student:
+            msg5 = "Student record not found in database."
+            return render_template("Student/student_dashboard.html", msg5=msg5)
 
-    if len(unknown_encodings) == 0:
-        msg3="No face detected in the image. Please try again."
-        return render_template("Student/student_dashboard.html", msg3=msg3)
-        return redirect(url_for('mark_attendance', class_id=class_id))
+        # ---------- FIX IMAGE PATH ----------
+        img_path = student['img_of_student']
 
-    unknown_encoding = unknown_encodings[0]
-    if len(unknown_encodings) > 1:
-        msg4="Multiple faces detected! Please ensure only you are in the frame."
-        return render_template("Student/student_dashboard.html", msg4=msg4)
-        return redirect(url_for('mark_attendance', class_id=class_id))
+        # Handle both cases (filename or full path)
+        if not img_path.startswith("static"):
+            img_path = os.path.join("static/student_img_upload", img_path)
 
-    cursor.execute(
-        "SELECT Student_id, img_of_student FROM student_data WHERE Student_id=%s",
-        (student_id,)
-    )
+        print("Image Path Used:", img_path)
 
-    student = cursor.fetchone()
+        if not os.path.exists(img_path):
+            msg6 = "Your registration image is missing. Please contact admin."
+            return render_template("Student/student_dashboard.html", msg6=msg6)
 
-    if not student:
-        msg5="Student record not found in database."
-        return render_template("Student/student_dashboard.html", msg5=msg5)
+        # ---------- LOAD STORED IMAGE ----------
+        known_image = face_recognition.load_image_file(img_path)
+        known_encodings = face_recognition.face_encodings(known_image)
 
-    img_filename = student['img_of_student']
-    img_path = os.path.join("static/student_img_upload", img_filename)
+        if len(known_encodings) == 0:
+            msg7 = "No face found in your stored image."
+            return render_template("Student/student_dashboard.html", msg7=msg7)
 
-    if not os.path.exists(img_path):
-        msg6="Your registration image is missing. Please contact admin."
-        return render_template("Student/student_dashboard.html", msg6=msg6)
+        known_encoding = known_encodings[0]
 
-    known_image = face_recognition.load_image_file(img_path)
-    known_encodings = face_recognition.face_encodings(known_image)
+        # ---------- FACE MATCH ----------
+        matches = face_recognition.compare_faces([known_encoding], unknown_encoding, tolerance=0.55)
+        distance = face_recognition.face_distance([known_encoding], unknown_encoding)
 
-    if len(known_encodings) == 0:
-        msg7="No face was found in your stored registration image."
-        return render_template("Student/student_dashboard.html", msg7=msg7)
-        return redirect(url_for('student_dashboard'))
+        print("Match:", matches[0])
+        print("Distance:", distance[0])
 
-    known_encoding = known_encodings[0]
+        if matches[0]:
 
+            today = datetime.now().date()
 
-    distance = face_recognition.face_distance([known_encoding], unknown_encoding)
-    # Relaxed tolerance from 0.5 to 0.55 to reduce false rejections due to lighting
-    if distance[0] < 0.55:
-        today = datetime.now().date()
+            cursor.execute("""
+                SELECT * FROM attendance
+                WHERE Student_id=%s AND date=%s AND class_id=%s
+            """, (student['Student_id'], today, class_id))
 
-        cursor.execute("""
-        SELECT *
-        FROM attendance
-        WHERE Student_id=%s AND date=%s AND class_id=%s
-        """, (student['Student_id'], today, class_id))
+            already = cursor.fetchone()
 
-        already = cursor.fetchone()
+            if already:
+                msg = "Attendance already marked for this class today."
+                return render_template("Student/student_dashboard.html", msg=msg)
 
-        if already:
-            #flash("Attendance has already been marked for this class today.", "warning")
-            msg='Attendance has already been marked for this class today.'
-            #return redirect(url_for('student_dashboard',msg=msg))
-            return render_template("Student/student_dashboard.html", msg=msg)
+            cursor.execute("""
+                INSERT INTO attendance (Student_id, class_id, date, status)
+                VALUES (%s, %s, %s, %s)
+            """, (student['Student_id'], class_id, today, "Present"))
 
-        cursor.execute("""
-        INSERT INTO attendance (Student_id, class_id, date, status)
-        VALUES (%s, %s, %s, %s)
-        """, (student['Student_id'], class_id, today, "Present"))
-        conn.commit()
-        print("hi")
-        #flash("Attendance Marked Successfully!", "success")
-        msg1='Attendance Marked Successfully!'
-        return render_template("Student/student_dashboard.html", msg1=msg1)
-    
-    msg2="Face does not match the registered user. Attendance denied."
-    return render_template("Student/student_dashboard.html", msg2=msg2)
+            conn.commit()
 
-    return redirect(url_for('mark_attendance', class_id=class_id))
+            msg1 = "Attendance Marked Successfully!"
+            return render_template("Student/student_dashboard.html", msg1=msg1)
+
+        else:
+            msg2 = "Face does not match the registered user."
+            return render_template("Student/student_dashboard.html", msg2=msg2)
+
+    except Exception as e:
+        print("Error:", e)
+        return render_template("Student/student_dashboard.html", msg="Error occurred")
 
 @app.route('/save_location', methods=['POST','GET'])
 def save_location():

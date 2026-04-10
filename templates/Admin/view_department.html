@@ -111,7 +111,7 @@
             <div class="breadcrumb-elite">
                 <a href="{{url_for('dashboard')}}">DASHBOARD</a> 
                 <span>/</span> 
-                <span class="text-main">DOMAIN ARCHITECTURE</span>
+                <span class="text-main">DEPARTMENTS</span>
             </div>
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
@@ -119,12 +119,12 @@
                         <i class="fas fa-building"></i>
                     </div>
                     <div>
-                        <h1 class="text-main font-weight-800 mb-0" style="font-size: 1.8rem; letter-spacing: -1px;">Instituional Domains</h1>
-                        <p class="text-muted mb-0 font-weight-500">Managing <span class="text-primary font-weight-700">{{ departments|length }}</span> structural departments</p>
+                        <h1 class="text-main font-weight-800 mb-0" style="font-size: 1.8rem; letter-spacing: -1px;">Department Management</h1>
+                        <p class="text-muted mb-0 font-weight-500">Managing <span class="text-primary font-weight-700">{{ departments|length }}</span> departments</p>
                     </div>
                 </div>
                 <a href="{{url_for('add_department')}}" class="btn btn-primary font-weight-800 px-4 py-2" style="border-radius: 12px; box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);">
-                    <i class="fas fa-plus mr-2"></i>CREATE DOMAIN
+                    <i class="fas fa-plus mr-2"></i>ADD DEPARTMENT
                 </a>
             </div>
         </div>
@@ -135,10 +135,10 @@
                     <thead>
                         <tr>
                             <th class="text-center">#</th>
-                            <th>Domain Name</th>
-                            <th>System Code</th>
+                            <th>Department Name</th>
+                            <th>Department Code</th>
                             <th>Executive (HOD)</th>
-                            <th class="text-center">Operations</th>
+                            <th class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>

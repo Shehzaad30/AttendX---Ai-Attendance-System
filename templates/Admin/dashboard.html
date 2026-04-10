@@ -21,10 +21,15 @@
         z-index: 1;
     }
 
+    .section {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
     .stat-card-elite:hover {
         transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-        border-color: rgba(255,255,255,0.6);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        border-color: rgba(255, 255, 255, 0.6);
     }
 
     /* Soft Gradient Overlay */
@@ -56,7 +61,8 @@
         inset: -4px;
         background: inherit;
         filter: blur(10px);
-        opacity: 0.3;
+        opacity: 0.5;
+        letter-spacing: 2px;
         border-radius: inherit;
     }
 
@@ -86,8 +92,13 @@
         gap: 6px;
     }
 
-    .trend-up { color: #059669; }
-    .trend-down { color: #dc2626; }
+    .trend-up {
+        color: #059669;
+    }
+
+    .trend-down {
+        color: #dc2626;
+    }
 
     .card-elite {
         background: var(--glass-bg);
@@ -104,7 +115,7 @@
 
     .card-elite:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     }
 
     .card-elite::before {
@@ -163,7 +174,7 @@
         background: rgba(255, 255, 255, 0.6);
         border-color: var(--primary);
         transform: scale(1.02);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
     }
 
     .progress-elite {
@@ -192,6 +203,7 @@
             opacity: 0;
             transform: translateY(40px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -201,16 +213,19 @@
 
 <div class="main-content">
     <section class="section">
-        
-        <div class="row mb-5 animate-elite" style="animation-delay: 0.1s;">
+
+        <div class="row mb-4 animate-elite" style="animation-delay: 0.1s;">
             <div class="col-12">
                 <div class="glass d-flex justify-content-between align-items-center p-4" style="border-radius: 24px;">
                     <div>
-                        <h1 class="font-weight-800 text-main mb-1" style="font-size: 2.2rem; letter-spacing: -2px;">Executive Dashboard</h1>
-                        <p class="text-muted mb-0 font-weight-500">Analytics and management overview for <span class="text-primary font-weight-700">AttendX</span></p>
+                        <h1 class="font-weight-800 text-main mb-1" style="font-size: 2.2rem; letter-spacing: -2px;">
+                            Executive Dashboard</h1>
+                        <p class="text-muted mb-0 font-weight-500">Analytics and management overview for <span
+                                class="text-primary font-weight-700">AttendX</span></p>
                     </div>
                     <div class="d-none d-md-block">
-                        <div class="d-flex align-items-center bg-white px-4 py-2" style="border-radius: 16px; box-shadow: var(--shadow-premium); background: rgba(255,255,255,0.7) !important; backdrop-filter: blur(10px);">
+                        <div class="d-flex align-items-center bg-white px-4 py-2"
+                            style="border-radius: 16px; box-shadow: var(--shadow-premium); background: rgba(255,255,255,0.7) !important; backdrop-filter: blur(10px);">
                             <i class="fas fa-calendar-check text-primary mr-3" style="font-size: 1.2rem;"></i>
                             <span id="currentDateDisplay" class="font-weight-700 text-main">Loading...</span>
                         </div>
@@ -230,7 +245,8 @@
                         <div class="stat-label">System Students</div>
                         <div class="stat-value">{{ studata }}</div>
                         <div class="stat-trend trend-up">
-                            <i class="fas fa-arrow-trend-up"></i> 3.8% <span class="text-muted font-weight-500 ml-1">since last month</span>
+                            <i class="fas fa-arrow-trend-up"></i> 3.8% <span
+                                class="text-muted font-weight-500 ml-1">since last month</span>
                         </div>
 
                     </div>
@@ -246,7 +262,8 @@
                         <div class="stat-label">Active Faculty</div>
                         <div class="stat-value">{{ facultydata }}</div>
                         <div class="stat-trend trend-up">
-                            <i class="fas fa-circle-chevron-up"></i> 4.2% <span class="text-muted font-weight-500 ml-1">increase</span>
+                            <i class="fas fa-circle-chevron-up"></i> 4.2% <span
+                                class="text-muted font-weight-500 ml-1">increase</span>
                         </div>
                     </div>
                 </div>
@@ -261,7 +278,8 @@
                         <div class="stat-label">Total Attendance</div>
                         <div class="stat-value">{{ attenddata }}</div>
                         <div class="stat-trend trend-up">
-                            <i class="fas fa-bolt-lightning"></i> +856 <span class="text-muted font-weight-500 ml-1">today</span>
+                            <i class="fas fa-bolt-lightning"></i> +856 <span
+                                class="text-muted font-weight-500 ml-1">today</span>
                         </div>
                     </div>
                 </div>
@@ -292,7 +310,7 @@
                     </div>
                     <div class="card-body">
                         <div class="chart-container-elite" style="height: 380px;">
-                            <canvas id="saasAttendanceChart"></canvas>
+                            <canvas id="analyticsChart" height="100"></canvas>
                         </div>
                     </div>
                 </div>
@@ -303,22 +321,27 @@
                 <div class="card-elite h-100">
                     <div class="card-elite-header">
                         <h3>Active Sessions</h3>
-                        <a href="{{url_for('view_class')}}" class="btn btn-link btn-sm text-primary font-weight-800">EXPAND</a>
+                        <a href="{{url_for('view_class')}}"
+                            class="btn btn-link btn-sm text-primary font-weight-800">EXPAND</a>
                     </div>
                     <div class="card-body p-4">
                         <div style="max-height: 420px; overflow-y: auto;">
                             {% for i in classes %}
                             <div class="class-card">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="font-weight-800 text-main" style="letter-spacing: -0.3px;">{{ i[2] }}</span>
-                                    <span class="badge badge-soft-primary px-3 py-2" style="border-radius: 8px;">88.4%</span>
+                                    <span class="font-weight-800 text-main" style="letter-spacing: -0.3px;">{{ i[2]
+                                        }}</span>
+                                    <span class="badge badge-soft-primary px-3 py-2"
+                                        style="border-radius: 8px;">88.4%</span>
                                 </div>
                                 <div class="progress-elite">
                                     <div class="progress-bar-elite" style="width: 88.4%;"></div>
                                 </div>
                                 <div class="d-flex justify-content-between mt-3">
-                                    <small class="text-muted font-weight-700"><i class="far fa-clock mr-2"></i>{{ i[9] }}</small>
-                                    <small class="text-emerald font-weight-800" style="color: #059669;">OPERATIONAL</small>
+                                    <small class="text-muted font-weight-700"><i class="far fa-clock mr-2"></i>{{ i[9]
+                                        }}</small>
+                                    <small class="text-emerald font-weight-800"
+                                        style="color: #059669;">OPERATIONAL</small>
                                 </div>
                             </div>
                             {% else %}
@@ -342,28 +365,7 @@
                     <div class="card-elite-header">
                         <h3>Operational Logs</h3>
                     </div>
-                    <div class="card-body p-4">
-                        <ul class="activity-feed">
-                            <li class="activity-item">
-                                <div class="activity-content font-weight-600">
-                                    New faculty asset bridge established for <span class="text-primary">Medical Science</span>.
-                                </div>
-                                <span class="activity-time font-weight-700">12:45 PM • SYNCED</span>
-                            </li>
-                            <li class="activity-item">
-                                <div class="activity-content font-weight-600">
-                                    Global face recognition model updated to <span class="text-primary">v4.2.0-stable</span>.
-                                </div>
-                                <span class="activity-time font-weight-700">10:15 AM • PATCHED</span>
-                            </li>
-                            <li class="activity-item">
-                                <div class="activity-content font-weight-600">
-                                    Attendance audit completed for 1,200 unique identities.
-                                </div>
-                                <span class="activity-time font-weight-700">09:00 AM • VERIFIED</span>
-                            </li>
-                        </ul>
-                    </div>
+
                 </div>
             </div>
 
@@ -376,15 +378,17 @@
                     <div class="card-body p-4">
                         <div class="row">
                             <div class="col-6 p-2">
-                                <a href="{{url_for('add_user')}}" class="btn btn-light btn-block text-main py-3" style="border: 1px solid #f1f5f9;">
+                                <a href="{{url_for('add_user')}}" class="btn btn-light btn-block text-main py-3"
+                                    style="border: 1px solid #f1f5f9;">
                                     <i class="fas fa-user-plus d-block mb-2 text-primary"></i>
                                     Identity Registration
                                 </a>
                             </div>
                             <div class="col-6 p-2">
-                                <a href="{{url_for('add_faculty')}}" class="btn btn-light btn-block text-main py-3" style="border: 1px solid #f1f5f9;">
+                                <a href="{{url_for('add_faculty')}}" class="btn btn-light btn-block text-main py-3"
+                                    style="border: 1px solid #f1f5f9;">
                                     <i class="fas fa-fingerprint d-block mb-2 text-primary"></i>
-                                    Node Access
+                                    Add Faculty
                                 </a>
                             </div>
                         </div>
@@ -399,83 +403,88 @@
 <!-- Chart.js and Dashboard Init -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Date Display
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('currentDateDisplay').textContent = new Date().toLocaleDateString('en-US', options).toUpperCase();
+    let chart;
 
-        // Chart.js Elite Configuration
-        const ctx = document.getElementById('saasAttendanceChart').getContext('2d');
-        
-        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
-        gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
+    async function loadChart() {
+        const res = await fetch('/api/analytics');
+        const data = await res.json();
 
-        new Chart(ctx, {
+        const ctx = document.getElementById('analyticsChart').getContext('2d');
+
+        // 🔥 destroy old chart (VERY IMPORTANT)
+        if (chart) {
+            chart.destroy();
+        }
+
+        // 🔥 gradient for premium UI
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, "rgba(99,102,241,0.4)");
+        gradient.addColorStop(1, "rgba(99,102,241,0)");
+
+        chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'],
+                labels: data.labels,
                 datasets: [{
-                    label: 'Engagement',
-                    data: [82, 88, 75, 92, 85, 45, 30],
+                    label: 'Attendance %',
+                    data: data.values,
                     borderColor: '#6366f1',
-                    borderWidth: 5,
                     backgroundColor: gradient,
                     fill: true,
-                    tension: 0.4,
-                    shadowBlur: 10,
-                    shadowColor: 'rgba(99, 102, 241, 0.5)',
+                    tension: 0.25,
+                    pointRadius: 6,
                     pointBackgroundColor: '#fff',
                     pointBorderColor: '#6366f1',
-                    pointBorderWidth: 3,
-                    pointRadius: 6,
-                    pointHoverRadius: 9,
-                    pointHoverBorderWidth: 4
+                    pointBorderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#0f172a',
-                        titleFont: { family: 'Inter', size: 13, weight: 800 },
-                        bodyFont: { family: 'Inter', size: 13, weight: 500 },
-                        padding: 15,
-                        borderRadius: 12,
-                        displayColors: false,
-                        callbacks: {
-                            label: function(context) {
-                                return ` RATE: ${context.parsed.y}%`;
-                            }
+                    legend: {
+                        labels: {
+                            color: '#1e293b',
+                            font: { weight: '600' }
                         }
                     }
                 },
                 scales: {
                     y: {
-                        beginAtZero: true,
+                        min: 0,
                         max: 100,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.08)',
-                            drawBorder: false
-                        },
                         ticks: {
-                            color: '#64748b',
-                            font: { family: 'Inter', weight: 700, size: 11 }
-                        }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: {
-                            color: '#64748b',
-                            font: { family: 'Inter', weight: 700, size: 11 }
+                            stepSize: 10
                         }
                     }
                 }
             }
         });
-    });
-</script>
+    }
 
+    // load once
+    loadChart();
+
+    // 🔥 OPTIONAL: auto refresh every 10 sec
+    setInterval(loadChart, 10000);
+    function loadCurrentDate() {
+        const el = document.getElementById("currentDateDisplay");
+
+        const now = new Date();
+
+        const options = {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        };
+
+        const formatted = now.toLocaleDateString('en-IN', options);
+
+        el.innerText = formatted;
+    }
+
+    // run once
+    loadCurrentDate();
+</script>
 {% endblock %}

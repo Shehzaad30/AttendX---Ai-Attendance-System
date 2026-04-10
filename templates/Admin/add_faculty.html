@@ -3,12 +3,15 @@
 
 <style>
     .elite-form-card {
-        background: #f9fafb;
-        border-radius: var(--radius-lg);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        box-shadow: var(--shadow-premium);
-        overflow: hidden;
-        margin-bottom: 30px;
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+
+        box-shadow:
+            0 10px 30px rgba(0, 0, 0, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+        border-radius: 20px;
     }
 
     .elite-card-header {
@@ -72,7 +75,7 @@
         font-size: 1rem;
         letter-spacing: 0.5px;
         transition: var(--transition);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         margin-top: 10px;
     }
 
@@ -107,7 +110,10 @@
         letter-spacing: 1px;
     }
 
-    .breadcrumb-elite a { color: var(--primary); text-decoration: none; }
+    .breadcrumb-elite a {
+        color: var(--primary);
+        text-decoration: none;
+    }
 </style>
 
 <div class="main-content">
@@ -115,51 +121,54 @@
         <!-- Page Header -->
         <div class="mb-5">
             <div class="breadcrumb-elite">
-                <a href="{{url_for('dashboard')}}">DASHBOARD</a> 
-                <span>/</span> 
-                <a href="{{url_for('view_faculty')}}">FACULTY</a> 
-                <span>/</span> 
-                <span class="text-main">DEPLOAYMENT</span>
+                <a href="{{url_for('dashboard')}}">DASHBOARD</a>
+                <span>/</span>
+                <a href="{{url_for('view_faculty')}}">FACULTY</a>
+                <span>/</span>
+                <span class="text-main">ADD FACULTY</span>
             </div>
             <div class="d-flex align-items-center">
                 <div class="elite-header-box">
                     <i class="fas fa-user-plus"></i>
                 </div>
                 <div>
-                    <h1 class="text-main font-weight-800 mb-0" style="font-size: 1.8rem; letter-spacing: -1px;">Academic Provisioning</h1>
-                    <p class="text-muted mb-0 font-weight-500">Establishing new administrative nodes for the <span class="text-warning font-weight-700">AttendX</span> mesh</p>
+                    <h1 class="text-main font-weight-800 mb-0" style="font-size: 1.8rem; letter-spacing: -1px;">Add
+                        Faculty</h1>
                 </div>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-lg-8 offset-lg-2">
+            <div class="col-lg-6 offset-lg-3">
                 <div class="elite-form-card">
                     <div class="elite-card-header">
                         <i class="fas fa-shield-alt text-warning"></i>
-                        <h3>Faculty Credentials</h3>
+                        <h3>Add Faculty</h3>
                     </div>
                     <form action="{{url_for('insert_faculty')}}" method="post">
                         <div class="elite-card-body">
                             <div class="row">
                                 <div class="col-md-6 form-group-elite">
-                                    <label>Professional Name</label>
-                                    <input type="text" name="Faculty_name" class="form-control-elite" placeholder="Dr. Sarah Connor" required>
+                                    <label>Full Name</label>
+                                    <input type="text" name="Faculty_name" class="form-control-elite"
+                                        placeholder="Enter full name" required>
                                 </div>
                                 <div class="col-md-6 form-group-elite">
                                     <label>Institutional Email</label>
-                                    <input type="email" name="Faculty_email" class="form-control-elite" placeholder="sarah@attendx.ai" required>
+                                    <input type="email" name="Faculty_email" class="form-control-elite"
+                                        placeholder="Enter email" required>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 form-group-elite">
                                     <label>Security Key</label>
-                                    <input type="password" name="Password" class="form-control-elite" placeholder="••••••••" required minlength="6">
+                                    <input type="password" name="Password" class="form-control-elite"
+                                        placeholder="••••••••" required minlength="6">
                                 </div>
                                 <div class="col-md-6 form-group-elite">
-                                    <label>Domain Allocation</label>
+                                    <label>Department</label>
                                     <select class="form-control-elite" name="Department_id" required>
-                                        <option value="">Select Domain</option>
+                                        <option value="">Select Department</option>
                                         {% for department in departments %}
                                         <option value="{{ department[0] }}">{{ department[1] }}</option>
                                         {% endfor %}
@@ -168,8 +177,10 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6 form-group-elite">
-                                    <label>Contact Node</label>
-                                    <input type="text" name="contact" class="form-control-elite" placeholder="+91 XXXXXXXXXX" required pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number">
+                                    <label>Contact</label>
+                                    <input type="text" name="contact" class="form-control-elite"
+                                        placeholder="+91 XXXXXXXXXX" required pattern="[0-9]{10}"
+                                        title="Please enter a valid 10-digit phone number">
                                 </div>
                                 <div class="col-md-6 form-group-elite">
                                     <label>Identity Image</label>
@@ -177,7 +188,7 @@
                                 </div>
                             </div>
                             <button type="submit" class="submit-btn-elite">
-                                <i class="fas fa-user-shield mr-2"></i> INITIALIZE DEPLOYMENT
+                                <i class="fas fa-user-shield mr-2"></i> Add Faculty
                             </button>
                         </div>
                     </form>

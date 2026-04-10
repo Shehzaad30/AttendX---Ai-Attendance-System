@@ -2,9 +2,6 @@
 {% block content %}
 
 <style>
-    
-    /* SaaS Premium Dashboard Specific Overrides */
-
     .dashboard-header {
         display: flex;
         justify-content: space-between;
@@ -257,10 +254,48 @@
         color: white;
         box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
     }
+
+    .featured-card {
+        background: linear-gradient(135deg, #fafbfb, #f8f9f8);
+        border: 1px solid rgba(16, 185, 129, 0.25);
+        box-shadow:
+            0 10px 30px rgba(16, 185, 129, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .featured-card:hover {
+        box-shadow:
+            0 20px 50px rgba(79, 237, 184, 0.25),
+            0 5px 20px rgba(16, 185, 129, 0.15);
+    }
 </style>
 
 {% if msg %}
-<script>alert("{{ msg | escape }}");</script>{% endif %}
+<script>alert("{{ msg | escape }}");</script>
+{% endif %}
+{% if msg3 %}
+<script>alert("{{ msg3 | escape }}");</script>
+{% endif %}
+{% if msg4 %}
+<script>alert("{{ msg4 | escape }}");</script>
+{% endif %}
+{% if msg5 %}
+<script>alert("{{ msg5 | escape }}");</script>
+{% endif %}
+{% if msg6 %}
+<script>alert("{{ msg6 | escape }}");</script>
+{% endif %}
+{% if msg7 %}
+<script>alert("{{ msg7 | escape }}");</script>
+{% endif %}
+{% if msg1 %}
+<script>alert("{{ msg1 | escape }}");</script>
+{% endif %}
+{% if msg2 %}
+<script>alert("{{ msg2 | escape }}");</script>
+{% endif %}
+
+
 
 <div class="dashboard-header">
     <div>
@@ -278,7 +313,7 @@
 
 <div class="row">
     <div class="col-lg-4 col-md-6 mb-4">
-        <div class="stat-card-saas">
+        <div class="stat-card-saas featured-card">
             <div class="stat-icon-wrapper icon-primary">
                 <i class="fas fa-book"></i>
             </div>
@@ -290,7 +325,7 @@
     </div>
 
     <div class="col-lg-4 col-md-6 mb-4">
-        <div class="stat-card-saas">
+        <div class="stat-card-saas featured-card">
             <div class="stat-icon-wrapper icon-warning">
                 <i class="fas fa-calendar-day"></i>
             </div>
@@ -302,7 +337,7 @@
     </div>
 
     <div class="col-lg-4 col-md-12 mb-4">
-        <div class="stat-card-saas">
+        <div class="stat-card-saas featured-card">
             <div class="stat-icon-wrapper icon-info">
                 <i class="fas fa-chart-line"></i>
             </div>

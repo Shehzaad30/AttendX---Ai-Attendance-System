@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-    <title>AttendX &mdash; Premium Faculty Dashboard</title>
+    <title>AttendX-Faculty Dashboard</title>
 
     <!-- General CSS Files -->
     <link
@@ -97,6 +97,25 @@
             backdrop-filter: blur(10px);
         }
 
+        /* Global Padding Reductions for Cards/Windows */
+        .card .card-body {
+            padding: 15px !important;
+        }
+
+        .card .card-header {
+            padding: 10px 15px !important;
+            min-height: 45px !important;
+        }
+
+        .section-header {
+            padding: 15px !important;
+            margin-bottom: 15px !important;
+        }
+
+        .p-4, .p-5 {
+            padding: 1.25rem !important;
+        }
+
         @keyframes blob-float {
             from {
                 transform: translate(0, 0) scale(1) rotate(0deg);
@@ -107,27 +126,27 @@
             }
         }
 
-        /* Navbar Architecture - Sticky and Full Width within Wrapper */
         .main-navbar {
             background: var(--glass-strong) !important;
             -webkit-backdrop-filter: var(--glass-blur) !important;
             backdrop-filter: var(--glass-blur) !important;
             border-bottom: 1px solid var(--glass-border) !important;
             box-shadow: var(--glass-shadow) !important;
-            height: 60px;
+            margin-bottom: 0 !important;
+            height: 55px !important;
+            min-height: 55px !important;
             position: sticky !important;
-            background: rgba(255, 255, 255, 0.9) !important;
             top: 0;
             z-index: 999;
-            padding: 0 30px !important;
+            padding: 0 15px !important;
             display: flex;
             align-items: center;
             transition: var(--transition);
         }
 
         .main-content-wrapper {
-            margin-left: 260px;
-            width: calc(100% - 260px);
+            margin-left: 220px;
+            width: calc(100% - 220px);
             min-height: 100vh;
             transition: var(--transition);
             display: flex;
@@ -152,9 +171,12 @@
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
-            width: 260px !important;
+            width: 220px !important;
             height: 100vh !important;
             background: var(--sidebar-gradient) !important;
+            background-image: 
+                radial-gradient(circle at top right, rgba(59, 130, 246, 0.15), transparent 400px),
+                linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
             z-index: 1000 !important;
             margin: 0 !important;
             border-radius: 0 !important;
@@ -203,18 +225,25 @@
             transition: var(--transition);
             display: flex;
             align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.1);
         }
 
         .main-sidebar .sidebar-brand a {
             font-family: 'Poppins', sans-serif;
             font-weight: 800;
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             color: #fff !important;
             display: flex;
             align-items: center;
             gap: 12px;
             letter-spacing: -0.5px;
             text-decoration: none !important;
+        }
+        
+        .main-sidebar .sidebar-brand a i {
+            color: #3b82f6;
+            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
         }
 
         body.sidebar-collapsed .main-sidebar .sidebar-brand a span {
@@ -274,20 +303,42 @@
             display: none;
         }
 
+        body.sidebar-collapsed .main-sidebar .sidebar-menu li.has-dropdown a .arrow {
+            display: none !important;
+        }
+
+        body.sidebar-collapsed .main-sidebar .sidebar-menu li.has-dropdown .dropdown-menu {
+            display: none !important;
+        }
+
+        body.sidebar-collapsed .main-sidebar .sidebar-menu li a {
+            justify-content: center;
+            padding: 0 !important;
+        }
+
         .main-sidebar .sidebar-menu li a:hover {
-            background: rgba(255, 255, 255, 0.04) !important;
+            background: rgba(59, 130, 246, 0.15) !important;
             color: #fff !important;
             transform: translateX(4px);
+            border-left: 3px solid rgba(59, 130, 246, 0.8);
         }
 
         .main-sidebar .sidebar-menu li.active a {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-
-            box-shadow:
-                0 8px 20px rgba(59, 130, 246, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+            box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.6);
             transform: translateX(2px);
+            border-left: none;
+        }
+        
+        .main-sidebar .sidebar-menu li.active a i {
+            color: white;
+            animation: softPulse 2s infinite;
+        }
+
+        @keyframes softPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 5px rgba(255,255,255,0.8)); }
+            100% { transform: scale(1); }
         }
 
         .main-sidebar .sidebar-menu li.active a::before {
@@ -306,11 +357,16 @@
 
         /* Content Area Refined */
         .main-content {
-            padding: 25px 30px !important;
+            padding: 5px 15px 15px 15px !important;
             flex: 1;
             width: 100% !important;
             min-height: auto !important;
             position: relative;
+        }
+        
+        .section {
+            padding-top: 0 !important;
+            margin-top: 0 !important;
         }
 
         /* Dropdown elite styling */
@@ -387,7 +443,7 @@
         }
 
         .main-footer {
-            padding: 20px 30px !important;
+            padding: 15px 20px !important;
             background: transparent !important;
             border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
             color: var(--text-muted);
@@ -481,7 +537,8 @@
             <aside id="sidebar-wrapper">
                 <div class="sidebar-brand">
                     <a href="{{url_for('faculty_dashboard')}}">
-                        <i class="fas fa-rocket"></i>
+                        <i class="fas fa-layer-group"
+                            style="color: var(--primary); filter: drop-shadow(0 0 8px var(--primary-glow));"></i>
                         <span>AttendX</span>
                     </a>
                 </div>
@@ -490,7 +547,7 @@
                     <li class="menu-header">Overview</li>
                     <li class="{{ 'active' if request.path == url_for('faculty_dashboard') else '' }}">
                         <a class="nav-link" href="{{ url_for('faculty_dashboard') }}">
-                            <i class="fas fa-grid-2"></i>
+                            <i class="fas fa-home"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>

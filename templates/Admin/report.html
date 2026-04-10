@@ -123,8 +123,8 @@
                     <i class="fas fa-chart-pie"></i>
                 </div>
                 <div>
-                    <h1 class="text-main font-weight-800 mb-0" style="font-size: 1.8rem; letter-spacing: -1px;">Intelligence Reports</h1>
-                    <p class="text-muted mb-0 font-weight-500">Synthesizing attendance data for <span class="text-primary font-weight-700">AttendX</span></p>
+                    <h1 class="text-main font-weight-800 mb-0" style="font-size: 1.8rem; letter-spacing: -1px;">Reports</h1>
+                    <p class="text-muted mb-0 font-weight-500">  <span class="text-primary font-weight-700">AttendX</span></p>
                 </div>
             </div>
             <div class="position-relative">
@@ -137,7 +137,7 @@
         <div class="elite-filter-card">
             <div class="row align-items-end">
                 <div class="col-md-3">
-                    <label class="text-muted small font-weight-800 text-uppercase mb-2 d-block" style="letter-spacing: 1px;">Temporal Scope</label>
+                    <label class="text-muted small font-weight-800 text-uppercase mb-2 d-block" style="letter-spacing: 1px;">filter</label>
                     <select class="form-control-elite w-100">
                         <option>Daily Cycle</option>
                         <option>Weekly Batch</option>
@@ -154,7 +154,7 @@
                 </div>
                 <div class="col-md-3">
                     <button class="btn btn-primary font-weight-800 w-100 py-2" style="border-radius: 12px; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);">
-                        <i class="fas fa-sync-alt mr-2"></i>GENERATE BATCH
+                        <i class="fas fa-sync-alt mr-2"></i>GENERATE REPORT
                     </button>
                 </div>
             </div>
@@ -173,9 +173,9 @@
                         <tr>
                             <th class="text-center">#</th>
                             <th>Student Entity</th>
-                            <th>Protocol ID</th>
-                            <th>Domain</th>
-                            <th>Term Status</th>
+                            <th>Enrollment ID</th>
+                            <th>Department</th>
+                            <th> Semester </th>
                             <th class="text-center">Analytics</th>
                         </tr>
                     </thead>
@@ -197,7 +197,7 @@
                             <td>
                                 <div class="font-weight-700 text-main" style="font-size: 0.85rem;">{{ i[4] }}</div>
                             </td>
-                            <td><span class="badge badge-soft-primary px-3 py-2" style="border-radius: 8px; font-weight: 800;">SEASON {{ i[3] }}</span></td>
+                            <td><span class="badge badge-soft-primary px-3 py-2" style="border-radius: 8px; font-weight: 800;">SEM {{ i[3] }}</span></td>
                             <td class="text-center">
                                 <a href="/viewattendance/{{ i[0] }}" class="action-btn-elite btn-view mr-2">
                                     <i class="fas fa-stream"></i> VIEW

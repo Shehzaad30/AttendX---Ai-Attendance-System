@@ -109,12 +109,12 @@
                         <i class="fas fa-user-tie"></i>
                     </div>
                     <div>
-                        <h1 class="text-main font-weight-800 mb-0" style="font-size: 1.8rem; letter-spacing: -1px;">Faculty Roster</h1>
-                        <p class="text-muted mb-0 font-weight-500">Managing <span class="text-warning font-weight-700">{{ faculty_members|length }}</span> verified academic nodes</p>
+                        <h1 class="text-main font-weight-800 mb-0" style="font-size: 1.8rem; letter-spacing: -1px;">Faculty Management</h1>
+                        <p class="text-muted mb-0 font-weight-500">Managing <span class="text-warning font-weight-700">{{ faculty_members|length }}</span> faculty members</p>
                     </div>
                 </div>
                 <a href="{{url_for('add_faculty')}}" class="btn btn-warning font-weight-800 px-4 py-2" style="border-radius: 12px; box-shadow: 0 10px 20px rgba(245, 158, 11, 0.2);">
-                    <i class="fas fa-plus mr-2"></i>DEPLOAY FACULTY
+                    <i class="fas fa-plus mr-2"></i> ADD FACULTY
                 </a>
             </div>
         </div>
@@ -127,8 +127,8 @@
                             <th class="text-center">#</th>
                             <th>Identity</th>
                             <th>Contact / Email</th>
-                            <th>Domain</th>
-                            <th class="text-center">Operations</th>
+                            <th>Department</th>
+                            <th class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -142,7 +142,7 @@
                                     </div>
                                     <div>
                                         <div class="font-weight-800 text-main">{{ faculty[1] }}</div>
-                                        <div class="text-muted small font-weight-600">Verified Personnel</div>
+                                        <div class="text-muted small font-weight-600"></div>
                                     </div>
                                 </div>
                             </td>
@@ -173,7 +173,7 @@
 <script>
     // Initialize Tooltips
     $(function () {
-      $('[data-toggle="tooltip"]').tooltip()
+        $('[data-toggle="tooltip"]').tooltip()
     })
 </script>
 

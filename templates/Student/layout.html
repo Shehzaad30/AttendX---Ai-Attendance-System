@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-    <title>AttendX &mdash; Premium Student Portal</title>
+    <title>AttendX-Student Portal</title>
 
     <!-- General CSS Files -->
     <link
@@ -53,6 +53,25 @@
             min-height: 100vh;
         }
 
+        /* Global Padding Reductions for Cards/Windows */
+        .card .card-body {
+            padding: 15px !important;
+        }
+
+        .card .card-header {
+            padding: 10px 15px !important;
+            min-height: 45px !important;
+        }
+
+        .section-header {
+            padding: 15px !important;
+            margin-bottom: 15px !important;
+        }
+
+        .p-4, .p-5 {
+            padding: 1.25rem !important;
+        }
+
         /* Top Navbar - Glassmorphism Floating Style */
         .main-navbar {
             background: rgba(255, 255, 255, 0.7) !important;
@@ -60,19 +79,21 @@
             backdrop-filter: blur(12px) !important;
             border-bottom: 1px solid var(--border-soft) !important;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
-            height: 65px;
+            margin-bottom: 0 !important;
+            height: 55px !important;
+            min-height: 55px !important;
             position: sticky !important;
             top: 0;
             z-index: 999;
-            padding: 0 30px !important;
+            padding: 0 15px !important;
             display: flex;
             align-items: center;
             transition: var(--transition);
         }
 
         .main-content-wrapper {
-            margin-left: 260px;
-            width: calc(100% - 260px);
+            margin-left: 220px;
+            width: calc(100% - 220px);
             min-height: 100vh;
             transition: var(--transition);
             display: flex;
@@ -90,7 +111,7 @@
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
-            width: 260px !important;
+            width: 220px !important;
             height: 100vh !important;
             background: var(--sidebar-gradient) !important;
             z-index: 1000 !important;
@@ -125,9 +146,9 @@
         }
 
         .main-sidebar .sidebar-brand {
-            height: 65px !important;
-            line-height: 65px !important;
-            padding: 0 24px;
+            height: 55px !important;
+            line-height: 55px !important;
+            padding: 0 15px;
             display: flex;
             align-items: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -197,6 +218,19 @@
             display: none;
         }
 
+        body.sidebar-collapsed .main-sidebar .sidebar-menu li.has-dropdown a .arrow {
+            display: none !important;
+        }
+
+        body.sidebar-collapsed .main-sidebar .sidebar-menu li.has-dropdown .dropdown-menu {
+            display: none !important;
+        }
+
+        body.sidebar-collapsed .main-sidebar .sidebar-menu li a {
+            justify-content: center;
+            padding: 0 !important;
+        }
+
         .main-sidebar .sidebar-menu li a:hover {
             color: #fff !important;
             background: rgba(255, 255, 255, 0.08) !important;
@@ -234,8 +268,13 @@
         }
 
         .main-content {
-            padding: 40px 45px !important;
+            padding: 5px 20px 20px 20px !important;
             flex: 1;
+        }
+        
+        .dashboard-header {
+            margin-bottom: 15px;
+            margin-top: 5px;
         }
 
         /* Profile Glass Dropdown */
@@ -272,7 +311,7 @@
         }
 
         .main-footer {
-            padding: 24px 45px !important;
+            padding: 15px 20px !important;
             background: transparent !important;
             border-top: 1px solid var(--border-dark) !important;
             color: var(--text-secondary);
@@ -401,7 +440,7 @@
                     <li class="menu-header">Overview</li>
                     <li class="{{ 'active' if request.path == url_for('student_dashboard') else '' }}">
                         <a class="nav-link" href="{{ url_for('student_dashboard') }}">
-                            <i class="fas fa-grid-2"></i>
+                            <i class="fas fa-home"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>

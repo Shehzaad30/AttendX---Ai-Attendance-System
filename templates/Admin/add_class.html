@@ -126,7 +126,7 @@
                     <i class="fas fa-plus-circle"></i>
                 </div>
                 <div>
-                    <h1 class="text-main font-weight-800 mb-0" style="font-size: 1.8rem; letter-spacing: -1px;">Schedule Session</h1>
+                    <h1 class="text-main font-weight-800 mb-0" style="font-size: 1.8rem; letter-spacing: -1px;">Schedule Class</h1>
                     <p class="text-muted mb-0 font-weight-500">Establishing new academic parameters for the <span class="text-primary font-weight-700">AttendX</span> grid</p>
                 </div>
             </div>
@@ -143,13 +143,13 @@
                         <div class="elite-card-body">
                             <div class="row">
                                 <div class="col-md-6 form-group-elite">
-                                    <label>Class Identifier</label>
+                                    <label>Class Name</label>
                                     <input type="text" name="class_name" class="form-control-elite" placeholder="Operating Systems Lab" required>
                                 </div>
                                 <div class="col-md-6 form-group-elite">
                                     <label>Faculty Incharge</label>
                                     <select class="form-control-elite" name="Faculty_id" required>
-                                        <option value="">Select Personnel</option>
+                                        <option value="">Select Faculty</option>
                                         {% for faculty in faculty_members %}
                                         <option value="{{ faculty[0] }}">{{ faculty[1] }}</option>
                                         {% endfor %}
@@ -159,16 +159,16 @@
 
                             <div class="row">
                                 <div class="col-md-4 form-group-elite">
-                                    <label>Academic Term</label>
+                                    <label>Semester</label>
                                     <select class="form-control-elite" name="semester" required>
-                                        <option value="">Select Term</option>
+                                        <option value="">Select Semester</option>
                                         {% for i in range(1, 9) %}
                                         <option value="{{i}}">Semester {{i}}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
                                 <div class="col-md-4 form-group-elite">
-                                    <label>Assigned Domain</label>
+                                    <label>Department</label>
                                     <select class="form-control-elite" name="Department_id" required>
                                         <option value="">Select Department</option>
                                         {% for dep in departments %}
@@ -177,19 +177,8 @@
                                     </select>
                                 </div>
                                 <div class="col-md-4 form-group-elite">
-                                    <label>Physical Node (Room)</label>
+                                    <label>Room Number</label>
                                     <input type="text" name="room_no" class="form-control-elite" placeholder="Lab-104" required>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 form-group-elite">
-                                    <label>Geo-Latitude</label>
-                                    <input type="number" step="any" name="latitude" class="form-control-elite" placeholder="19.0760">
-                                </div>
-                                <div class="col-md-6 form-group-elite">
-                                    <label>Geo-Longitude</label>
-                                    <input type="number" step="any" name="longitude" class="form-control-elite" placeholder="72.8777">
                                 </div>
                             </div>
 
@@ -209,7 +198,7 @@
                             </div>
 
                             <button type="submit" class="submit-btn-elite">
-                                <i class="fas fa-calendar-check mr-2"></i> INITIALIZE SCHEDULE
+                                <i class="fas fa-calendar-check mr-2"></i> SCHEDULE SESSION
                             </button>
                         </div>
                     </form>
@@ -218,4 +207,4 @@
         </div>
     </section>
 </div>
-{% endblock %}
+{% endblock %}
