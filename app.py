@@ -24,12 +24,63 @@ app.secret_key = "attendx_secret_key"
 conn=pymysql.connect(host='localhost', user='root', password='', db='db_atten')
 UPLOAD_FOLDER = 'static/student_img_upload/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def get_admin_analytics_data():
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT COUNT(*) FROM student_data")
+    total_students = cursor.fetchone()[0] or 0
+
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM attendance
+        WHERE date = CURDATE() AND status = 'Present'
+    """)
+    active_presence = cursor.fetchone()[0] or 0
+
+    absent_today = max(total_students - active_presence, 0)
+    stability_index = round((active_presence / total_students) * 100, 1) if total_students else 0
+
+    labels = []
+    values = []
+
+    cursor.execute("""
+        SELECT DATE(date) as day,
+        COUNT(*) as total,
+        SUM(CASE WHEN status='Present' THEN 1 ELSE 0 END) as present
+        FROM attendance
+        WHERE date >= CURDATE() - INTERVAL 6 DAY
+        GROUP BY DATE(date)
+        ORDER BY DATE(date)
+    """)
+
+    rows = cursor.fetchall()
+
+    for row in rows:
+        labels.append(row[0].strftime('%d %b'))  # e.g. 12 Apr
+        total = row[1]
+        present = row[2] or 0
+        values.append(round((present / total) * 100) if total else 0)
+
+    cursor.close()
+
+    return {
+        "labels": labels,
+        "values": values,
+        "total_students": total_students,
+        "active_presence": active_presence,
+        "absent_today": absent_today,
+        "stability_index": stability_index,
+        "pie_labels": ["Present", "Absent"],
+        "pie_values": [active_presence, absent_today]
+    }
+
 @app.route("/alogin_process", methods=["POST"])
 def alogin_process():
     admin_email = request.form.get('admin_email')
     admin_pass = request.form.get('admin_pass')
     cursor = conn.cursor() 
-    cursor.execute("SELECT * FROM admin_login WHERE admin_email=%s", (admin_email))
+    cursor.execute("SELECT * FROM admin_login WHERE admin_email=%s", (admin_email,))
     admin = cursor.fetchone()
     if admin:
         if check_password_hash(admin[3], admin_pass):
@@ -58,8 +109,21 @@ def dashboard():
     
     cursor.execute(query3)
     facultydata = cursor.fetchone()[0]
-    
-    return render_template("Admin/dashboard.html", studata=studata, deptdata=deptdata, attenddata=attenddata, facultydata=facultydata)
+
+    query4 = "SELECT * from class_data Join faculty_data on class_data.Faculty_id=faculty_data.Faculty_id Join department_data on class_data.Department_id=department_data.Department_id"
+    cursor.execute(query4)
+    classes = cursor.fetchall()
+    cursor.close()
+
+    return render_template(
+        "Admin/dashboard.html",
+        studata=studata,
+        deptdata=deptdata,
+        attenddata=attenddata,
+        facultydata=facultydata,
+        classes=classes,
+        analytics=get_admin_analytics_data()
+    )
 
 
 @app.route("/add_department")
@@ -149,36 +213,8 @@ def api_analytics():
     if 'admin_id' not in session:
         return jsonify({"error": "Unauthorized"}), 401
 
-    cursor = conn.cursor()
+    return jsonify(get_admin_analytics_data())
 
-    days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
-    labels = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
-    values = []
-
-    for day in days:
-        query = """
-        SELECT 
-            COUNT(*) as total,
-            SUM(CASE WHEN status='Present' THEN 1 ELSE 0 END) as present
-        FROM attendance
-        WHERE DAYNAME(date) = %s
-        """
-        cursor.execute(query, (day,))
-        row = cursor.fetchone()
-
-        total = row[0]
-        present = row[1] if row[1] else 0
-
-        percent = 0
-        if total > 0:
-            percent = round((present / total) * 100)
-
-        values.append(percent)
-
-    return jsonify({
-        "labels": labels,
-        "values": values
-    })
 
 @app.route("/studentprocess", methods=["POST", "GET"])
 def studentprocess():
@@ -1711,5 +1747,353 @@ def student_logout():
     session.clear()
     return redirect(url_for('student_login'))
 
+
+# ================================================================
+#  ATTENDANCE SYSTEM — Session Control, Initialization & Marking
+# ================================================================
+
+def get_db_cursor(dict_cursor=False):
+    """Return a fresh cursor, reconnecting if needed."""
+    conn.ping(reconnect=True)
+    if dict_cursor:
+        return conn.cursor(pymysql.cursors.DictCursor)
+    return conn.cursor()
+
+
+def is_session_active(class_id):
+    """
+    Return True if the current time falls within the class's
+    start_time and end_time for today's date.
+    """
+    cursor = get_db_cursor(dict_cursor=True)
+    cursor.execute(
+        "SELECT start_time, end_time, date FROM class_data WHERE class_id = %s",
+        (class_id,)
+    )
+    cls = cursor.fetchone()
+    cursor.close()
+
+    if not cls:
+        return False
+
+    now = datetime.now()
+
+    # class_date check: only active on its scheduled date
+    class_date = cls['date']
+    if class_date and class_date != now.date():
+        return False
+
+    # start_time / end_time may come back as timedelta (pymysql quirk)
+    def to_time(val):
+        if val is None:
+            return None
+        if isinstance(val, datetime):
+            return val.time()
+        # timedelta → seconds
+        import datetime as dt
+        if isinstance(val, dt.timedelta):
+            total = int(val.total_seconds())
+            h, rem = divmod(total, 3600)
+            m, s = divmod(rem, 60)
+            return dt.time(h, m, s)
+        return val  # already time
+
+    start = to_time(cls['start_time'])
+    end   = to_time(cls['end_time'])
+
+    if start is None or end is None:
+        return True   # no time restriction configured
+
+    current = now.time()
+    return start <= current <= end
+
+
+def initialize_absent_records(class_id):
+    cursor = conn.cursor()
+
+    # Get all students
+    cursor.execute("SELECT Student_id FROM student_data")
+    students = cursor.fetchall()
+
+    for student in students:
+        student_id = student[0]
+
+        # Check if already exists
+        cursor.execute("""
+            SELECT * FROM attendance
+            WHERE Student_id=%s AND class_id=%s AND date=CURDATE()
+        """, (student_id, class_id))
+
+        if not cursor.fetchone():
+            cursor.execute("""
+                INSERT INTO attendance (Student_id, class_id, date, status)
+                VALUES (%s, %s, CURDATE(), 'Absent')
+            """, (student_id, class_id))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+def mark_student_present(student_id, class_id):
+    """
+    Update the student's attendance record from 'Absent' → 'Present'.
+    Uses UPDATE (not INSERT) because initialize_absent_records already
+    created the row.  Returns True if a row was updated.
+    """
+    cursor = get_db_cursor()
+    cursor.execute(
+        """
+        UPDATE attendance
+        SET status = 'Present'
+        WHERE Student_id = %s
+          AND class_id   = %s
+          AND date       = CURDATE()
+        """,
+        (student_id, class_id)
+    )
+    conn.commit()
+    affected = cursor.rowcount
+    cursor.close()
+    return affected > 0
+
+
+# ----------------------------------------------------------------
+#  API: Check if a class session is currently active
+#  GET /api/session_status/<class_id>
+# ----------------------------------------------------------------
+@app.route("/api/session_status/<int:class_id>")
+def api_session_status(class_id):
+    if 'Student_id' not in session and 'faculty_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    active = is_session_active(class_id)
+    return jsonify({"class_id": class_id, "active": active})
+
+
+# ----------------------------------------------------------------
+#  API: Initialize absent records for a class (idempotent)
+#  POST /api/init_attendance/<class_id>   (Faculty only)
+# ----------------------------------------------------------------
+@app.route("/api/init_attendance/<int:class_id>", methods=["POST"])
+def api_init_attendance(class_id):
+    if 'faculty_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    if not is_session_active(class_id):
+        return jsonify({
+            "success": False,
+            "message": "Class session is not currently active."
+        }), 403
+
+    inserted = initialize_absent_records(class_id)
+    return jsonify({
+        "success": True,
+        "inserted": inserted,
+        "message": f"{inserted} absent records created." if inserted else "Already initialized."
+    })
+
+
+# ----------------------------------------------------------------
+#  API: Mark a student present (face-recognition or manual)
+#  POST /api/mark_present
+#  Body JSON: { "student_id": int, "class_id": int }
+#  (Faculty / admin use — no face check)
+# ----------------------------------------------------------------
+@app.route("/api/mark_present", methods=["POST"])
+def api_mark_present():
+    if 'faculty_id' not in session and 'admin_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data       = request.get_json(force=True) or {}
+    student_id = data.get("student_id")
+    class_id   = data.get("class_id")
+
+    if not student_id or not class_id:
+        return jsonify({"success": False, "message": "Missing student_id or class_id"}), 400
+
+    if not is_session_active(class_id):
+        return jsonify({"success": False, "message": "Class session is not active."}), 403
+
+    # Make sure the absent row exists first (in case init was skipped)
+    initialize_absent_records(class_id)
+
+    updated = mark_student_present(student_id, class_id)
+    return jsonify({
+        "success": updated,
+        "message": "Marked Present." if updated else "No matching record found for today."
+    })
+
+
+# ----------------------------------------------------------------
+#  Face-recognition attendance — updated to use UPDATE not INSERT
+# ----------------------------------------------------------------
+@app.route("/mark_attendanceprocess_v2", methods=["POST"])
+def mark_attendanceprocess_v2():
+    """
+    New version of face-recognition attendance marking.
+    Pre-seeds absent records, then updates to Present on match.
+    """
+    class_id   = request.form.get('class_id')
+    student_id = session.get('Student_id')
+
+    if not student_id:
+        return redirect(url_for('student_login'))
+    if not class_id:
+        return jsonify({"success": False, "message": "Invalid class ID"}), 400
+
+    class_id = int(class_id)
+
+    # 1. Session active check
+    if not is_session_active(class_id):
+        return render_template(
+            "Student/student_dashboard.html",
+            msg="Class session is not currently active. Attendance cannot be marked."
+        )
+
+    # 2. Ensure absent row exists for this student today
+    initialize_absent_records(class_id)
+
+    cursor = get_db_cursor(dict_cursor=True)
+
+    try:
+        # 3. Decode webcam image
+        image_data   = request.form['image_data'].split(",")[1]
+        image_bytes  = base64.b64decode(image_data)
+        np_arr       = np.frombuffer(image_bytes, np.uint8)
+        frame        = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+        rgb_frame    = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        rgb_frame    = cv2.resize(rgb_frame, (0, 0), fx=0.5, fy=0.5)
+
+        unknown_encodings = face_recognition.face_encodings(rgb_frame)
+
+        if len(unknown_encodings) == 0:
+            return render_template("Student/student_dashboard.html",
+                                   msg3="No face detected. Please try again.")
+        if len(unknown_encodings) > 1:
+            return render_template("Student/student_dashboard.html",
+                                   msg4="Multiple faces detected. Please try alone.")
+
+        unknown_encoding = unknown_encodings[0]
+
+        # 4. Load stored student image
+        cursor.execute(
+            "SELECT Student_id, img_of_student FROM student_data WHERE Student_id=%s",
+            (student_id,)
+        )
+        student = cursor.fetchone()
+        if not student:
+            return render_template("Student/student_dashboard.html",
+                                   msg5="Student record not found.")
+
+        img_path = student['img_of_student']
+        if not img_path.startswith("static"):
+            img_path = os.path.join("static/student_img_upload", img_path)
+
+        if not os.path.exists(img_path):
+            return render_template("Student/student_dashboard.html",
+                                   msg6="Registration image missing. Contact admin.")
+
+        known_image    = face_recognition.load_image_file(img_path)
+        known_encodings = face_recognition.face_encodings(known_image)
+
+        if len(known_encodings) == 0:
+            return render_template("Student/student_dashboard.html",
+                                   msg7="No face found in stored image.")
+
+        known_encoding = known_encodings[0]
+
+        # 5. Compare faces
+        matches  = face_recognition.compare_faces([known_encoding], unknown_encoding, tolerance=0.55)
+        distance = face_recognition.face_distance([known_encoding], unknown_encoding)
+        print(f"[FaceRec] Match={matches[0]}, Distance={distance[0]:.4f}")
+
+        if matches[0]:
+            # 6. Check if already marked Present
+            cursor.execute(
+                "SELECT status FROM attendance "
+                "WHERE Student_id=%s AND class_id=%s AND date=CURDATE()",
+                (student['Student_id'], class_id)
+            )
+            existing = cursor.fetchone()
+
+            if existing and existing['status'] == 'Present':
+                return render_template("Student/student_dashboard.html",
+                                       msg="Attendance already marked Present for today.")
+
+            # 7. UPDATE to Present
+            updated = mark_student_present(student['Student_id'], class_id)
+            if updated:
+                return render_template("Student/student_dashboard.html",
+                                       msg1="✅ Attendance Marked Successfully!")
+            else:
+                return render_template("Student/student_dashboard.html",
+                                       msg="Could not update attendance. Try again.")
+        else:
+            return render_template("Student/student_dashboard.html",
+                                   msg2="Face does not match. Attendance denied.")
+
+    except Exception as e:
+        print("[mark_attendanceprocess_v2] Error:", e)
+        return render_template("Student/student_dashboard.html",
+                               msg="An error occurred. Please try again.")
+    finally:
+        cursor.close()
+
+
+# ----------------------------------------------------------------
+#  Faculty view: live attendance list for a class
+#  GET /faculty_class_attendance/<class_id>
+# ----------------------------------------------------------------
+@app.route("/faculty_class_attendance/<int:class_id>")
+def faculty_class_attendance(class_id):
+    if 'faculty_id' not in session:
+        return redirect(url_for('faculty_login'))
+
+    # Auto-initialize when faculty opens this page
+    if is_session_active(class_id):
+        initialize_absent_records(class_id)
+
+    cursor = get_db_cursor(dict_cursor=True)
+
+    # Fetch class info
+    cursor.execute(
+        """
+        SELECT c.*, d.Department_name, f.Faculty_name
+        FROM class_data c
+        JOIN department_data d ON c.Department_id = d.Department_id
+        JOIN faculty_data f    ON c.Faculty_id    = f.Faculty_id
+        WHERE c.class_id = %s
+        """,
+        (class_id,)
+    )
+    cls = cursor.fetchone()
+
+    # Fetch today's attendance for this class
+    cursor.execute(
+        """
+        SELECT a.attendance_id, s.Student_id, s.Student_name,
+               s.Enrollment_no, a.status
+        FROM attendance a
+        JOIN student_data s ON a.Student_id = s.Student_id
+        WHERE a.class_id = %s AND a.date = CURDATE()
+        ORDER BY s.Student_name
+        """,
+        (class_id,)
+    )
+    records = cursor.fetchall()
+    cursor.close()
+
+    session_active = is_session_active(class_id)
+
+    return render_template(
+        "Faculty/class_attendance.html",
+        cls=cls,
+        records=records,
+        session_active=session_active,
+        class_id=class_id
+    )
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+

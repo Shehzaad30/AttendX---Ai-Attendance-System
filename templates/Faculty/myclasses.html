@@ -208,9 +208,10 @@
                             </li>
                         </ul>
 
-                        <a href="{{ url_for('show_attendance') }}" class="btn-take-attendance">
+                        <a href="{{ url_for('faculty_class_attendance', class_id=class[0]) }}" class="btn-take-attendance">
                             <i class="fas fa-camera mr-2"></i> Start Attendance
                         </a>
+
                     </div>
                 </div>
                 {% endfor %}

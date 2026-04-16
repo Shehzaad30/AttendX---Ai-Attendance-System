@@ -229,13 +229,13 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6 form-group-elite">
-                                    <label>Enrollment Protocol</label>
+                                    <label>Enrollment ID</label>
                                     <input type="text" class="form-control-elite" name="Enrollment_no" id="Enrollment_no" placeholder="AX-99201" required>
                                 </div>
                                 <div class="col-md-6 form-group-elite">
                                     <label>Assigned Department</label>
                                     <select class="form-control-elite" name="Department_id" id="Department_id" required>
-                                        <option value="">Select Domain</option>
+                                        <option value="">Select Department</option>
                                         {% for department in departments %}
                                         <option value="{{ department[0] }}">{{ department[1] }}</option>
                                         {% endfor %}
@@ -244,7 +244,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6 form-group-elite">
-                                    <label>Academic Season</label>
+                                    <label>Academic Semester</label>
                                     <input type="text" class="form-control-elite" name="Semester" id="Semester" placeholder="Semester 1" required>
                                 </div>
                                 <div class="col-md-6 form-group-elite">
@@ -258,14 +258,14 @@
                                     <input type="password" class="form-control-elite" name="password" id="password" required placeholder="••••••••" minlength="6">
                                 </div>
                                 <div class="col-md-6 form-group-elite">
-                                    <label>Contact Node</label>
+                                    <label>Contact Number</label>
                                     <input type="text" class="form-control-elite" name="contact" id="contact" required pattern="[0-9]{10}" placeholder="+91 XXXXXXXXXX">
                                 </div>
                             </div>
                             
                             <input type="file" name="captured_image" id="captured_image" style="display:none;">
                             <button class="submit-btn-elite" type="button" id="submitBtn">
-                                <i class="fas fa-shield-check mr-2"></i> INITIALIZE REGISTRATION
+                                <i class="fas fa-shield-check mr-2"></i> ESTABLISH IDENTITY
                             </button>
                         </div>
                     </div>

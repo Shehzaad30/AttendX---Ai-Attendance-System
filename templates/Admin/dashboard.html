@@ -405,61 +405,43 @@
 <script>
     let chart;
 
-    async function loadChart() {
-        const res = await fetch('/api/analytics');
-        const data = await res.json();
-
+    function renderChart(data) {
         const ctx = document.getElementById('analyticsChart').getContext('2d');
 
-        // 🔥 destroy old chart (VERY IMPORTANT)
-        if (chart) {
-            chart.destroy();
+        if (!chart) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, "rgba(99,102,241,0.4)");
+            gradient.addColorStop(1, "rgba(99,102,241,0)");
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Attendance %',
+                        data: data.values,
+                        borderColor: '#6366f1',
+                        backgroundColor: gradient,
+                        fill: true,
+                        tension: 0.25
+                    }]
+                }
+            });
+        } else {
+            chart.data.labels = data.labels;
+            chart.data.datasets[0].data = data.values;
+            chart.update();
+        }
+    }
+
+    async function loadChart() {
+        const res = await fetch('/api/analytics');
+        if (!res.ok) {
+            return;
         }
 
-        // 🔥 gradient for premium UI
-        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, "rgba(99,102,241,0.4)");
-        gradient.addColorStop(1, "rgba(99,102,241,0)");
-
-        chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: data.labels,
-                datasets: [{
-                    label: 'Attendance %',
-                    data: data.values,
-                    borderColor: '#6366f1',
-                    backgroundColor: gradient,
-                    fill: true,
-                    tension: 0.25,
-                    pointRadius: 6,
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: '#6366f1',
-                    pointBorderWidth: 3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#1e293b',
-                            font: { weight: '600' }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        min: 0,
-                        max: 100,
-                        ticks: {
-                            stepSize: 10
-                        }
-                    }
-                }
-            }
-        });
+        const data = await res.json();
+        renderChart(data);
     }
 
     // load once

@@ -189,11 +189,6 @@
                         <div><span class="class-detail-label">Room:</span><span class="class-detail-text" style="font-family:'Courier New', Courier, monospace; font-weight:700;">{{ j[4] }}</span></div>
                     </div>
 
-                    <div class="class-detail-row">
-                        <i class="fas fa-map-marker-alt class-detail-icon"></i>
-                        <div><span class="class-detail-label">Location:</span><span class="class-detail-text">{{ j[8] }}, {{ j[9] }}</span></div>
-                    </div>
-
                     <div class="action-container">
                         <a href="{{ url_for('mark_attendance', class_id=j[0]) }}" style="color:darkcyan;" class="btn btn-mark w-100">
                             <i class="fas fa-fingerprint"></i> Mark Attendance
