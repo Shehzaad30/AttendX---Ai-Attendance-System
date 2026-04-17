@@ -310,7 +310,7 @@
                     </div>
                     <div class="card-body">
                         <div class="chart-container-elite" style="height: 380px;">
-                            <canvas id="analyticsChart" height="100"></canvas>
+                            <div id="analyticsChart"></div>
                         </div>
                     </div>
                 </div>
@@ -400,55 +400,99 @@
     </section>
 </div>
 
-<!-- Chart.js and Dashboard Init -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- ApexCharts and Dashboard Init -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
-    let chart;
-
-    function renderChart(data) {
-        const ctx = document.getElementById('analyticsChart').getContext('2d');
-
-        if (!chart) {
-            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, "rgba(99,102,241,0.4)");
-            gradient.addColorStop(1, "rgba(99,102,241,0)");
-
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.labels,
-                    datasets: [{
-                        label: 'Attendance %',
-                        data: data.values,
-                        borderColor: '#6366f1',
-                        backgroundColor: gradient,
-                        fill: true,
-                        tension: 0.25
-                    }]
+    const chartData = {{ chart_data | tojson | safe }};
+    
+    var options = {
+        series: chartData.values,
+        chart: {
+            type: 'donut',
+            height: 380,
+            animations: {
+                enabled: true,
+                easing: 'easeinout',
+                speed: 800,
+                animateGradually: {
+                    enabled: true,
+                    delay: 150
+                },
+                dynamicAnimation: {
+                    enabled: true,
+                    speed: 350
                 }
-            });
-        } else {
-            chart.data.labels = data.labels;
-            chart.data.datasets[0].data = data.values;
-            chart.update();
+            }
+        },
+        labels: chartData.labels,
+        colors: ['#6366f1', '#22c55e', '#f59e0b'],
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '70%',
+                    labels: {
+                        show: true,
+                        name: {
+                            show: true,
+                            fontSize: '22px',
+                            fontWeight: 600,
+                            color: '#64748b'
+                        },
+                        value: {
+                            show: true,
+                            fontSize: '36px',
+                            fontWeight: 800,
+                            color: '#1e293b',
+                            formatter: function (val) {
+                                return val;
+                            }
+                        },
+                        total: {
+                            show: true,
+                            showAlways: true,
+                            label: 'Total',
+                            fontSize: '18px',
+                            fontWeight: 600,
+                            color: '#64748b',
+                            formatter: function (w) {
+                                return w.globals.seriesTotals.reduce((a, b) => {
+                                    return a + b
+                                }, 0)
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            show: true,
+            colors: '#ffffff',
+            width: 3
+        },
+        tooltip: {
+            enabled: true,
+            theme: 'dark'
+        },
+        legend: {
+            position: 'bottom',
+            labels: {
+                colors: '#475569'
+            },
+            markers: {
+                radius: 12
+            },
+            itemMargin: {
+                horizontal: 10,
+                vertical: 0
+            }
         }
-    }
+    };
 
-    async function loadChart() {
-        const res = await fetch('/api/analytics');
-        if (!res.ok) {
-            return;
-        }
-
-        const data = await res.json();
-        renderChart(data);
-    }
-
-    // load once
-    loadChart();
-
-    // 🔥 OPTIONAL: auto refresh every 10 sec
-    setInterval(loadChart, 10000);
+    var chart = new ApexCharts(document.querySelector("#analyticsChart"), options);
+    chart.render();
     function loadCurrentDate() {
         const el = document.getElementById("currentDateDisplay");
 

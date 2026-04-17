@@ -372,7 +372,6 @@
                                 <th>Class</th>
                                 <th>Room</th>
                                 <th>Time</th>
-                                <th class="text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -390,10 +389,7 @@
                                 <td><span style="color: var(--text-secondary, #64748b);">{{ cls.room_no }}</span></td>
                                 <td><span class="badge badge-soft-primary">{{ cls.start_time }} - {{ cls.end_time }}</span></td>
                                 <td class="text-right">
-                                    <a href="{{ url_for('take_attendance', class_id=cls.class_id) }}"
-                                        class="btn-gradient">
-                                        Start <i class="fas fa-arrow-right ml-1" style="font-size:0.8rem;"></i>
-                                    </a>
+
                                 </td>
                             </tr>
                             {% else %}
@@ -440,9 +436,6 @@
                         style="font-size: 0.85rem; padding: 0.5em 1em;">{{ next_class.start_time }} - {{
                         next_class.end_time }}</span></p>
 
-                <a href="{{ url_for('take_attendance') }}" class="btn-gradient w-100 text-center" style="display: block;">
-                    Start Attendance <i class="fas fa-camera ml-1"></i>
-                </a>
                 {% else %}
                 <div style="padding: 2rem 0;">
                     <i class="fas fa-check-circle mb-3" style="font-size: 2.5rem; color: rgba(16, 185, 129, 0.7);"></i>

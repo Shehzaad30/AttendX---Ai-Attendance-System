@@ -462,10 +462,553 @@
     </div>
 </div>
 
+<style>
+    .premium-heatmap-card {
+        background: linear-gradient(145deg, #ffffff, #f8fafc);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        border-radius: 20px;
+        box-shadow: 0 12px 48px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1);
+        padding: 32px 36px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .premium-heatmap-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image: linear-gradient(rgba(226, 232, 240, 0.3) 1px, transparent 1px), 
+                          linear-gradient(90deg, rgba(226, 232, 240, 0.3) 1px, transparent 1px);
+        background-size: 20px 20px;
+        opacity: 0.15;
+        pointer-events: none;
+        z-index: 0;
+    }
+    
+    .heatmap-header, .heatmap-body-wrapper, .heatmap-footer {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .heatmap-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 30px;
+    }
+    
+    .heatmap-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 1.35rem;
+        color: #0f172a;
+        margin: 0 0 8px 0;
+        letter-spacing: -0.3px;
+        line-height: 1.5;
+    }
+    
+    .heatmap-subtitle {
+        font-size: 0.95rem;
+        color: #64748b;
+        margin: 0;
+        font-weight: 500;
+        line-height: 1.6;
+    }
+    
+    .month-chip-select {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 30px;
+        padding: 8px 18px;
+        font-weight: 600;
+        color: #166534;
+        font-size: 0.9rem;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.2s ease;
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23166534' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        background-size: 14px;
+        padding-right: 36px;
+        box-shadow: 0 4px 12px rgba(22,101,52,0.05);
+    }
+    
+    .month-chip-select:hover {
+        background-color: #dcfce7;
+        border-color: #86efac;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(22,101,52,0.1);
+    }
+    
+    .heatmap-body-wrapper {
+        position: relative;
+        margin-top: 32px;
+        min-height: 250px;
+    }
+    
+    .heatmap-content {
+        display: flex;
+        justify-content: center;
+        gap: 64px; /* Strong, clear separation */
+        align-items: center;
+        transition: opacity 0.3s ease;
+        padding: 0 20px;
+    }
+    
+    .calendar-and-legend {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+    }
+
+    .heatmap-calendar-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .day-labels {
+        display: grid;
+        grid-template-rows: repeat(7, 1fr);
+        gap: 12px;
+    }
+    
+    .day-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #94a3b8;
+        height: 22px;
+        line-height: 22px;
+        text-align: right;
+        min-width: 32px;
+    }
+    
+    .heatmap-grid-container {
+        display: flex;
+        gap: 12px;
+    }
+    
+    .heatmap-week {
+        display: grid;
+        grid-template-rows: repeat(7, 1fr);
+        gap: 12px;
+    }
+    
+    .heatmap-cell {
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        background-color: #f1f5f9;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.2s ease, opacity 0.3s ease;
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .heatmap-cell:hover {
+        transform: scale(1.2);
+        z-index: 10;
+        border-color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .level-0 { background-color: #f1f5f9; }
+    .level-1 { background-color: #bbf7d0; box-shadow: inset 0 0 0 1px rgba(187,247,208,0.5); }
+    .level-2 { background-color: #4ade80; box-shadow: inset 0 0 0 1px rgba(74,222,128,0.5); }
+    .level-3 { background-color: #22c55e; box-shadow: inset 0 0 0 1px rgba(34,197,94,0.5); }
+    .level-4 { background-color: #15803d; box-shadow: inset 0 0 0 1px rgba(21,128,61,0.5); }
+    
+    .level-1:hover { box-shadow: 0 6px 16px rgba(187,247,208,0.6); }
+    .level-2:hover { box-shadow: 0 6px 16px rgba(74,222,128,0.6); }
+    .level-3:hover { box-shadow: 0 6px 16px rgba(34,197,94,0.6); }
+    .level-4:hover { box-shadow: 0 6px 16px rgba(21,128,61,0.6); }
+    
+    /* Stats side panel */
+    .heatmap-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-width: 260px;
+        padding-left: 48px;
+        border-left: 1px solid #e2e8f0;
+        justify-content: center;
+    }
+    
+    .h-stat-box {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        padding: 20px 24px;
+        border-radius: 16px;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.03);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .h-stat-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        border-color: #cbd5e1;
+    }
+    
+    .h-stat-label {
+        display: block;
+        font-size: 0.75rem;
+        color: #64748b;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+    
+    .h-stat-value {
+        display: block;
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1;
+    }
+    
+    /* Empty State Overlay */
+    #heatmapEmptyState {
+        position: absolute;
+        top: 50%;
+        left: 40%;
+        transform: translate(-50%, -50%);
+        z-index: 20;
+        background: rgba(255, 255, 255, 0.85);
+        padding: 24px 48px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255,255,255,1);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        text-align: center;
+        transition: opacity 0.3s ease;
+    }
+    
+    #heatmapEmptyState i {
+        font-size: 2.5rem;
+        color: #94a3b8;
+        margin-bottom: 12px;
+    }
+    
+    #heatmapEmptyState p {
+        color: #475569;
+        font-weight: 600;
+        font-size: 1.05rem;
+        margin: 0;
+    }
+    
+    .heatmap-footer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+    
+    .legend-label {
+        font-size: 0.8rem;
+        color: #64748b;
+        font-weight: 600;
+    }
+    
+    .legend-grid {
+        display: flex;
+        gap: 6px;
+    }
+    
+    .legend-cell {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+    
+    #heatmap-tooltip {
+        position: absolute;
+        background: rgba(15, 23, 42, 0.95);
+        color: #f8fafc;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        pointer-events: none;
+        opacity: 0;
+        transform: translateY(0px) translateX(-50%);
+        transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 1000;
+        white-space: nowrap;
+        box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(4px);
+        text-align: center;
+    }
+    
+    #heatmap-tooltip.visible {
+        opacity: 1;
+        transform: translateY(-12px) translateX(-50%);
+    }
+    
+    #heatmap-tooltip::after {
+        content: '';
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 6px 6px 0;
+        border-style: solid;
+        border-color: rgba(15, 23, 42, 0.95) transparent transparent transparent;
+    }
+    
+    #heatmap-tooltip strong {
+        display: block;
+        color: #bbf7d0;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+
+    @media (max-width: 991px) {
+        .heatmap-content {
+            flex-direction: column;
+            gap: 40px;
+        }
+        .heatmap-stats {
+            margin-left: 0;
+            padding-left: 0;
+            border-left: none;
+            border-top: 1px solid #e2e8f0;
+            flex-direction: row;
+            width: 100%;
+            padding-top: 24px;
+            justify-content: space-between;
+        }
+        .h-stat-box { flex: 1; text-align: center; }
+        #heatmapEmptyState { left: 50%; }
+        .heatmap-footer { justify-content: center; }
+    }
+</style>
+
+<div class="row mt-4">
+    <div class="col-12 mb-4">
+        <div class="premium-heatmap-card">
+            <div class="heatmap-header">
+                <div>
+                    <h3 class="heatmap-title">Monthly Attendance</h3>
+                    <p class="heatmap-subtitle">Your real-time presence data pattern</p>
+                </div>
+                <div class="month-selector">
+                    <select id="heatmapMonthSelect" class="month-chip-select"></select>
+                </div>
+            </div>
+            
+            <div class="heatmap-body-wrapper">
+                <div id="heatmapEmptyState" class="d-none">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>No attendance data for this month</p>
+                </div>
+                
+                <div id="heatmapContent" class="heatmap-content">
+                    <div class="calendar-and-legend">
+                        <div class="heatmap-calendar-wrapper">
+                            <div class="day-labels">
+                                <div class="day-label">Sun</div>
+                                <div class="day-label">Mon</div>
+                                <div class="day-label">Tue</div>
+                                <div class="day-label">Wed</div>
+                                <div class="day-label">Thu</div>
+                                <div class="day-label">Fri</div>
+                                <div class="day-label">Sat</div>
+                            </div>
+                            
+                            <div class="heatmap-grid-container" id="customHeatmap">
+                                <!-- JS generated grid -->
+                            </div>
+                        </div>
+                        
+                        <div class="heatmap-footer">
+                            <span class="legend-label">Less</span>
+                            <div class="legend-grid">
+                                <div class="legend-cell level-0"></div>
+                                <div class="legend-cell level-1"></div>
+                                <div class="legend-cell level-2"></div>
+                                <div class="legend-cell level-3"></div>
+                                <div class="legend-cell level-4"></div>
+                            </div>
+                            <span class="legend-label">More</span>
+                        </div>
+                    </div>
+                    
+                    <div class="heatmap-stats">
+                        <div class="h-stat-box">
+                            <span class="h-stat-label">Classes Attended</span>
+                            <span class="h-stat-value" id="statPresent" style="color: var(--primary);">0</span>
+                        </div>
+                        <div class="h-stat-box">
+                            <span class="h-stat-label">Active Days</span>
+                            <span class="h-stat-value" id="statDays">0</span>
+                        </div>
+                        <div class="h-stat-box">
+                            <span class="h-stat-label">Max in a Day</span>
+                            <span class="h-stat-value" id="statMax">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="heatmap-tooltip"></div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('currentDateDisplay').textContent = new Date().toLocaleDateString('en-US', options);
+        
+        const dateElement = document.getElementById('currentDateDisplay');
+        if (dateElement) {
+            dateElement.textContent = new Date().toLocaleDateString('en-US', options);
+        }
+
+        const rawData = {{ heatmap_data | default([]) | tojson | safe }};
+        const dataMap = {};
+        rawData.forEach(item => { dataMap[item[0]] = item[1]; });
+        
+        const monthSelect = document.getElementById('heatmapMonthSelect');
+        const heatmapGrid = document.getElementById('customHeatmap');
+        const emptyState = document.getElementById('heatmapEmptyState');
+        const heatmapContent = document.getElementById('heatmapContent');
+        const tooltip = document.getElementById('heatmap-tooltip');
+        
+        const statPresent = document.getElementById('statPresent');
+        const statDays = document.getElementById('statDays');
+        const statMax = document.getElementById('statMax');
+        
+        const today = new Date();
+        
+        // Add current and past 5 months to selector
+        for (let i = 0; i < 6; i++) {
+            const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+            const option = document.createElement('option');
+            const monthVal = String(d.getMonth() + 1).padStart(2, '0');
+            option.value = `${d.getFullYear()}-${monthVal}`;
+            option.textContent = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            monthSelect.appendChild(option);
+        }
+        
+        function renderHeatmap(yearStr, monthStr) {
+            heatmapGrid.innerHTML = '';
+            tooltip.classList.remove('visible');
+            
+            const year = parseInt(yearStr);
+            const month = parseInt(monthStr) - 1; 
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            
+            const startWeekDay = firstDay.getDay(); 
+            const totalDays = lastDay.getDate();
+            const numWeeks = Math.ceil((totalDays + startWeekDay) / 7);
+            
+            let currentDay = 1;
+            let monthPresent = 0;
+            let monthDays = 0;
+            let monthMax = 0;
+            let hasAnyData = false;
+            
+            for (let w = 0; w < numWeeks; w++) {
+                const weekDiv = document.createElement('div');
+                weekDiv.className = 'heatmap-week';
+                
+                for (let d = 0; d < 7; d++) {
+                    const cellDiv = document.createElement('div');
+                    
+                    if ((w === 0 && d < startWeekDay) || (currentDay > totalDays)) {
+                        cellDiv.className = 'heatmap-cell empty-cell';
+                        cellDiv.style.opacity = '0';
+                        cellDiv.style.pointerEvents = 'none';
+                    } else {
+                        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(currentDay).padStart(2, '0')}`;
+                        const count = dataMap[dateStr] || 0;
+                        
+                        if (count > 0) hasAnyData = true;
+                        
+                        monthPresent += count;
+                        if (count > 0) monthDays++;
+                        if (count > monthMax) monthMax = count;
+                        
+                        let level = 0;
+                        if (count >= 4) level = 4;
+                        else if (count === 3) level = 3;
+                        else if (count === 2) level = 2;
+                        else if (count === 1) level = 1;
+                        
+                        cellDiv.className = `heatmap-cell level-${level}`;
+                        
+                        const displayDate = new Date(year, month, currentDay).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                        
+                        cellDiv.addEventListener('mouseenter', (e) => {
+                            const rect = cellDiv.getBoundingClientRect();
+                            tooltip.innerHTML = `<strong>${displayDate}</strong>${count} class${count !== 1 ? 'es' : ''} attended`;
+                            tooltip.classList.add('visible');
+                            
+                            const tooltipRect = tooltip.getBoundingClientRect();
+                            tooltip.style.left = `${rect.left + (rect.width / 2)}px`;
+                            tooltip.style.top = `${rect.top - tooltipRect.height - 10 + window.scrollY}px`;
+                        });
+                        
+                        cellDiv.addEventListener('mouseleave', () => {
+                            tooltip.classList.remove('visible');
+                        });
+                        
+                        // Initial animation state
+                        cellDiv.style.opacity = '0';
+                        cellDiv.style.transform = 'scale(0.8)';
+                        
+                        currentDay++;
+                    }
+                    weekDiv.appendChild(cellDiv);
+                }
+                heatmapGrid.appendChild(weekDiv);
+            }
+            
+            // Animation logic
+            statPresent.textContent = monthPresent;
+            statDays.textContent = monthDays;
+            statMax.textContent = monthMax;
+            
+            const cells = heatmapGrid.querySelectorAll('.heatmap-cell:not(.empty-cell)');
+            cells.forEach((cell, index) => {
+                setTimeout(() => {
+                    cell.style.opacity = '1';
+                    cell.style.transform = 'scale(1)';
+                }, index * 20); // Faster stagger
+            });
+            
+            if (!hasAnyData) {
+                emptyState.classList.remove('d-none');
+                heatmapContent.style.opacity = '0.15';
+                heatmapContent.style.filter = 'blur(2px)';
+                heatmapContent.style.pointerEvents = 'none';
+            } else {
+                emptyState.classList.add('d-none');
+                heatmapContent.style.opacity = '1';
+                heatmapContent.style.filter = 'blur(0)';
+                heatmapContent.style.pointerEvents = 'auto';
+            }
+        }
+        
+        monthSelect.addEventListener('change', (e) => {
+            const [y, m] = e.target.value.split('-');
+            renderHeatmap(y, m);
+        });
+        
+        const [initY, initM] = monthSelect.value.split('-');
+        renderHeatmap(initY, initM);
     });
 </script>
 

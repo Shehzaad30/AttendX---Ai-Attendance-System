@@ -13,7 +13,7 @@ import base64
 from flask import render_template_string, make_response
 import numpy as np
 import cv2
-from datetime import datetime
+from datetime import datetime, timedelta
 import qrcode
 
 
@@ -113,6 +113,13 @@ def dashboard():
     query4 = "SELECT * from class_data Join faculty_data on class_data.Faculty_id=faculty_data.Faculty_id Join department_data on class_data.Department_id=department_data.Department_id"
     cursor.execute(query4)
     classes = cursor.fetchall()
+    classdata = len(classes)
+    
+    chart_data = {
+        "labels": ["Students", "Faculty", "Classes"],
+        "values": [studata, facultydata, classdata]
+    }
+    
     cursor.close()
 
     return render_template(
@@ -122,7 +129,8 @@ def dashboard():
         attenddata=attenddata,
         facultydata=facultydata,
         classes=classes,
-        analytics=get_admin_analytics_data()
+        analytics=get_admin_analytics_data(),
+        chart_data=chart_data
     )
 
 
@@ -1232,15 +1240,31 @@ def student_dashboard():
     """,(department_id,))
     next_class = cursor.fetchone()
 
+    cursor.execute("""
+    SELECT date, 
+           SUM(CASE WHEN status = 'Present' THEN 1 ELSE 0 END) as present_count
+    FROM attendance
+    WHERE Student_id=%s
+    GROUP BY date
+    """, (student_id,))
+    heatmap_rows = cursor.fetchall()
+    
+    heatmap_data = []
+    for row in heatmap_rows:
+        if row['date']:
+            # Handle date string conversion
+            date_str = row['date'].strftime('%Y-%m-%d') if hasattr(row['date'], 'strftime') else str(row['date'])
+            heatmap_data.append([date_str, int(row['present_count'])])
+            
     cursor.close()
-
     return render_template(
         "Student/student_dashboard.html",
         total_classes=total_classes,
         today_classes=today_classes,
         today_classes_count=today_classes_count,
         attendance_percentage=attendance_percentage,
-        next_class=next_class
+        next_class=next_class,
+        heatmap_data=heatmap_data
     )
 
 @app.route("/classes")
@@ -1808,48 +1832,87 @@ def is_session_active(class_id):
     return start <= current <= end
 
 
-def initialize_absent_records(class_id):
-    cursor = conn.cursor()
-
-    # Get all students
-    cursor.execute("SELECT Student_id FROM student_data")
-    students = cursor.fetchall()
-
-    for student in students:
-        student_id = student[0]
-
-        # Check if already exists
-        cursor.execute("""
-            SELECT * FROM attendance
-            WHERE Student_id=%s AND class_id=%s AND date=CURDATE()
-        """, (student_id, class_id))
-
-        if not cursor.fetchone():
-            cursor.execute("""
-                INSERT INTO attendance (Student_id, class_id, date, status)
-                VALUES (%s, %s, CURDATE(), 'Absent')
-            """, (student_id, class_id))
-
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
-def mark_student_present(student_id, class_id):
+def is_late_for_class(class_id, tolerance_minutes=15):
     """
-    Update the student's attendance record from 'Absent' → 'Present'.
+    Check if the current time is more than tolerance_minutes 
+    past the class start_time.
+    """
+    cursor = get_db_cursor(dict_cursor=True)
+    cursor.execute(
+        "SELECT start_time FROM class_data WHERE class_id = %s AND date = CURDATE()",
+        (class_id,)
+    )
+    cls = cursor.fetchone()
+    cursor.close()
+
+    if not cls or not cls['start_time']:
+        return False
+
+    def to_time(val):
+        if val is None: return None
+        if isinstance(val, datetime): return val.time()
+        import datetime as dt
+        if isinstance(val, dt.timedelta):
+            total = int(val.total_seconds())
+            h, rem = divmod(total, 3600)
+            m, s = divmod(rem, 60)
+            return dt.time(h, m, s)
+        return val
+
+    start = to_time(cls['start_time'])
+    if not start:
+        return False
+
+    now = datetime.now()
+    start_dt = datetime.combine(now.date(), start)
+    if now > start_dt + timedelta(minutes=tolerance_minutes):
+        return True
+    return False
+
+
+def initialize_absent_records(class_id):
+    cursor = get_db_cursor()
+
+    # Optimized single INSERT using WHERE NOT EXISTS
+    query = """
+        INSERT INTO attendance (Student_id, class_id, date, status)
+        SELECT s.Student_id, %s, CURDATE(), 'Absent'
+        FROM student_data s
+        WHERE s.Department_id = (
+            SELECT Department_id FROM class_data WHERE class_id = %s
+        )
+        AND NOT EXISTS (
+            SELECT 1 FROM attendance a 
+            WHERE a.Student_id = s.Student_id 
+              AND a.class_id = %s 
+              AND a.date = CURDATE()
+        )
+    """
+    cursor.execute(query, (class_id, class_id, class_id))
+    conn.commit()
+    affected = cursor.rowcount
+    cursor.close()
+    
+    return affected
+    
+def mark_student_present(student_id, class_id, is_late=False):
+    """
+    Update the student's attendance record from 'Absent' → 'Present' or 'Late'.
     Uses UPDATE (not INSERT) because initialize_absent_records already
     created the row.  Returns True if a row was updated.
     """
     cursor = get_db_cursor()
+    new_status = 'Late' if is_late else 'Present'
     cursor.execute(
         """
         UPDATE attendance
-        SET status = 'Present'
+        SET status = %s
         WHERE Student_id = %s
           AND class_id   = %s
           AND date       = CURDATE()
+          AND status     = 'Absent'
         """,
-        (student_id, class_id)
+        (new_status, student_id, class_id)
     )
     conn.commit()
     affected = cursor.rowcount
@@ -1917,7 +1980,8 @@ def api_mark_present():
     # Make sure the absent row exists first (in case init was skipped)
     initialize_absent_records(class_id)
 
-    updated = mark_student_present(student_id, class_id)
+    is_late = is_late_for_class(class_id)
+    updated = mark_student_present(student_id, class_id, is_late=is_late)
     return jsonify({
         "success": updated,
         "message": "Marked Present." if updated else "No matching record found for today."
@@ -2020,11 +2084,13 @@ def mark_attendanceprocess_v2():
                 return render_template("Student/student_dashboard.html",
                                        msg="Attendance already marked Present for today.")
 
-            # 7. UPDATE to Present
-            updated = mark_student_present(student['Student_id'], class_id)
+            # 7. UPDATE to Present or Late
+            is_late = is_late_for_class(class_id)
+            updated = mark_student_present(student['Student_id'], class_id, is_late=is_late)
             if updated:
+                msg1 = "✅ Late Attendance Marked Successfully!" if is_late else "✅ Attendance Marked Successfully!"
                 return render_template("Student/student_dashboard.html",
-                                       msg1="✅ Attendance Marked Successfully!")
+                                       msg1=msg1)
             else:
                 return render_template("Student/student_dashboard.html",
                                        msg="Could not update attendance. Try again.")
