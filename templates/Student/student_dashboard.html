@@ -338,7 +338,7 @@
 
     <div class="col-lg-4 col-md-12 mb-4">
         <div class="stat-card-saas featured-card">
-            <div class="stat-icon-wrapper icon-info">
+            <div class="stat-icon-wrapper ">
                 <i class="fas fa-chart-line"></i>
             </div>
             <div class="stat-details">
@@ -383,8 +383,7 @@
                                     </div>
                                 </td>
                                 <td><span style="color: var(--text-secondary);">{{ cls.room_no }}</span></td>
-                                <td><span class="badge badge-soft-primary">{{ cls.start_time }} - {{ cls.end_time
-                                        }}</span></td>
+                                <td><span class="badge badge-soft-primary">{{ cls.start_time }} - {{ cls.end_time}}</span></td>
                                 <td class="text-right">
                                     <a href="{{ url_for('mark_attendance', class_id=cls.class_id) }}"
                                         class="btn-gradient">
@@ -478,7 +477,7 @@
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
         background-image: linear-gradient(rgba(226, 232, 240, 0.3) 1px, transparent 1px), 
-                          linear-gradient(90deg, rgba(226, 232, 240, 0.3) 1px, transparent 1px);
+                            linear-gradient(90deg, rgba(226, 232, 240, 0.3) 1px, transparent 1px);
         background-size: 20px 20px;
         opacity: 0.15;
         pointer-events: none;
@@ -526,8 +525,8 @@
         cursor: pointer;
         outline: none;
         transition: all 0.2s ease;
-        appearance: none;
         -webkit-appearance: none;
+        appearance: none;
         background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23166534' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
         background-repeat: no-repeat;
         background-position: right 14px center;
@@ -865,6 +864,10 @@
 
 <div id="heatmap-tooltip"></div>
 
+<script id="heatmap-data" type="application/json">
+{{ heatmap_data | default([]) | tojson | safe }}
+</script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -874,7 +877,8 @@
             dateElement.textContent = new Date().toLocaleDateString('en-US', options);
         }
 
-        const rawData = {{ heatmap_data | default([]) | tojson | safe }};
+        const rawDataScript = document.getElementById('heatmap-data');
+        const rawData = rawDataScript ? JSON.parse(rawDataScript.textContent || '[]') : [];
         const dataMap = {};
         rawData.forEach(item => { dataMap[item[0]] = item[1]; });
         

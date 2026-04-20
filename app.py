@@ -5,7 +5,7 @@ import openpyxl
 from io import BytesIO
 
 import os
-import math
+
 import uuid
 import face_recognition
 from fpdf import FPDF
@@ -14,7 +14,6 @@ from flask import render_template_string, make_response
 import numpy as np
 import cv2
 from datetime import datetime, timedelta
-import qrcode
 
 
 import pymysql
@@ -2138,7 +2137,7 @@ def faculty_class_attendance(class_id):
     cursor.execute(
         """
         SELECT a.attendance_id, s.Student_id, s.Student_name,
-               s.Enrollment_no, a.status
+            s.Enrollment_no, a.status
         FROM attendance a
         JOIN student_data s ON a.Student_id = s.Student_id
         WHERE a.class_id = %s AND a.date = CURDATE()

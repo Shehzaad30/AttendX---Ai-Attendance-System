@@ -245,8 +245,6 @@
                         <div class="stat-label">System Students</div>
                         <div class="stat-value">{{ studata }}</div>
                         <div class="stat-trend trend-up">
-                            <i class="fas fa-arrow-trend-up"></i> 3.8% <span
-                                class="text-muted font-weight-500 ml-1">since last month</span>
                         </div>
 
                     </div>
@@ -262,8 +260,7 @@
                         <div class="stat-label">Active Faculty</div>
                         <div class="stat-value">{{ facultydata }}</div>
                         <div class="stat-trend trend-up">
-                            <i class="fas fa-circle-chevron-up"></i> 4.2% <span
-                                class="text-muted font-weight-500 ml-1">increase</span>
+                            
                         </div>
                     </div>
                 </div>
@@ -278,8 +275,7 @@
                         <div class="stat-label">Total Attendance</div>
                         <div class="stat-value">{{ attenddata }}</div>
                         <div class="stat-trend trend-up">
-                            <i class="fas fa-bolt-lightning"></i> +856 <span
-                                class="text-muted font-weight-500 ml-1">today</span>
+                            
                         </div>
                     </div>
                 </div>
@@ -294,7 +290,7 @@
                         <div class="stat-label">Departments</div>
                         <div class="stat-value">{{ deptdata }}</div>
                         <div class="stat-trend">
-                            <span class="text-muted font-weight-600">Unified System</span>
+                            
                         </div>
                     </div>
                 </div>
@@ -402,8 +398,9 @@
 
 <!-- ApexCharts and Dashboard Init -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script id="chartData" type="application/json">{{ chart_data | tojson | safe }}</script>
 <script>
-    const chartData = {{ chart_data | tojson | safe }};
+    const chartData = JSON.parse(document.getElementById('chartData').textContent);
     
     var options = {
         series: chartData.values,
